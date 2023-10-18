@@ -28,23 +28,6 @@ void IOinit()
     CNPU2bits.CN30PUE = 1;
     CNPU1bits.CN0PUE  = 1;
     CNPU1bits.CN1PUE  = 1;
-    
-    // Set CPU interrupt priority to 7 (disable user interrupt))
-    SRbits.IPL = 7;
-    
-    // Switch clock to 500 kHz
-    CLKDIVbits.RCDIV = 0;
-    __builtin_write_OSCCONH(0x66);
-    __builtin_write_OSCCONL(0x01);
-    OSCCONbits.OSWEN = 1;
-    while (OSCCONbits.OSWEN == 1);
-    
-    // Set 1:64 prescaler on TIMER2
-    T2CONbits.TCKPS = 0b10;
-    
-    // Set CPU interrupt priority to 0
-    SRbits.IPL = 0;
-    
 }
 
 

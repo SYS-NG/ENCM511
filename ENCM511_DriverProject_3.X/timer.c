@@ -10,6 +10,22 @@
 // Configure Timer Registers
 void timerInit()
 {
+    // Set CPU interrupt priority to 7 (disable user interrupt))
+    SRbits.IPL = 7;
+    
+    // Switch clock to 500 kHz
+    CLKDIVbits.RCDIV = 0;
+    __builtin_write_OSCCONH(0x66);
+    __builtin_write_OSCCONL(0x01);
+    OSCCONbits.OSWEN = 1;
+    while (OSCCONbits.OSWEN == 1);
+    
+    // Set 1:64 prescaler on TIMER2
+    T2CONbits.TCKPS = 0b10;
+    
+    // Set CPU interrupt priority to 0
+    SRbits.IPL = 0;
+    
     IEC0bits.T2IE = 1; // Enable Timer2 Interrupt
     IFS0bits.T2IF = 0; // Lower Timer2 Interrupt Status Flag
     T2CONbits.T32 = 0; // Set Timer2 to be 16 bit
@@ -22,6 +38,12 @@ void timerInit()
 void delay_ms(uint16_t time_ms)
 {
     // Based on millisecond to wait for, set Timer2 period accordingly
+    // Sample Calculation for 1 ms:
+    //      Timer2 increment frequency = (500kHz)/(2 * 64)
+    //                                 = 3906.25 Hz
+    //      PR2 = (1x10^-3 s) * (3906.25 Hz)
+    //          = 3.90625
+    //          = ~4  
     switch(time_ms)
     {
         // 1ms
