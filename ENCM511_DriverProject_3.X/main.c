@@ -7,59 +7,31 @@
 
 
 #include "xc.h"
-#include "timer.h"
 #include "io.h"
 
-uint8_t  state   = 3;
-uint8_t  toggle  = 0;
-int32_t counter = 0;
-int32_t counter_lim = 0;
-
-void _ISR _CNInterrupt(void)
-{
-    asm("nop");
-    
-    // Notification on input change (rising or falling edge)
+//void _ISR _CNInterrupt(void) 
+void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void)
+{   
+    IEC0bits.T2IE = 0;
+    IFS0bits.T2IF = 0;
    
-    // Set state based on the three input ports
-    state = readInputSetState();
+    T2CONbits.TON = 0;
+    TMR2          = 0;
     
-    // Set initial state conditions based on returned state
-    setStateConditions(state);
-    
-    // Lower Input Change Notification Flag
-    IFS1bits.CNIF = 0;
-    
+    IEC0bits.T2IE = 1;
 }
 
 int main(void) {
     
     // Configure I/O and interrupts
-    configurePIC();
-    
-    // Initial state condition
-    state = readInputSetState();
-    setStateConditions(state);
+    IOinit();
     
     // Forever loop
     while(1)
     {
-
         // Toggle is set based on state during interrupt service routine
         asm("nop");
-        
-        // Program will stay in function for a duration determined by state
-        customWait(state);
-        
-        // If in one of the dynamic states, toggle the LED on/off
-        if(state <= 2)
-        { 
-            asm("nop");
-            toggleLED();
-        }
-        
-        asm("nop");
-         
+        IOcheck();
     }
     
     return 0;
