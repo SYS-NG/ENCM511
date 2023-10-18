@@ -19,15 +19,18 @@
 #include "xc.h"
 #include "io.h"
 
-//void _ISR _CNInterrupt(void) 
+// Timer2 Interrupt Service Routine
 void _ISR _T2Interrupt(void)
 {   
+    // Disable Timer2 Interrupt and lower interrupt flag
     IEC0bits.T2IE = 0;
     IFS0bits.T2IF = 0;
-   
+    
+    // Turn off timer2 and reset TMR2 to 0
     T2CONbits.TON = 0;
     TMR2          = 0;
     
+    // Enable Timer2 Interrupt
     IEC0bits.T2IE = 1;
 }
 
@@ -40,7 +43,7 @@ int main(void) {
     // Forever loop
     while(1)
     {
-        // Toggle is set based on state during interrupt service routine
+        // Check I/O states and delay
         asm("nop");
         IOcheck();
     }
