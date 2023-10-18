@@ -56,7 +56,7 @@ void IOcheck() {
     uint8_t PB2 = !(PORTAbits.RA4);
     uint8_t PB3 = !(PORTBbits.RB4);
     
-    uint8_t PB = PB3 << 2 + PB2 << 1 + PB1;
+    uint8_t PB = (PB3 << 2) + (PB2 << 1) + PB1;
     
     uint16_t delay;
     uint8_t toggle = 1;

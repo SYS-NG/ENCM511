@@ -5,12 +5,14 @@
  * Created on September 28, 2023, 8:47 AM
  */
 
+#pragma config FCKSM = CSECMD           // Clock Switching and Monitor Selection (Clock switching is enabled, Fail-Safe Clock Monitor is disabled)
+#pragma config ICS = PGx2               // ICD Pin Placement Select bits (PGC2/PGD2 are used for programming and debugging the device)
 
 #include "xc.h"
 #include "io.h"
 
 //void _ISR _CNInterrupt(void) 
-void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void)
+void _ISR _T2Interrupt(void)
 {   
     IEC0bits.T2IE = 0;
     IFS0bits.T2IF = 0;
@@ -25,6 +27,7 @@ int main(void) {
     
     // Configure I/O and interrupts
     IOinit();
+    timerInit();
     
     // Forever loop
     while(1)

@@ -7,6 +7,17 @@
 
 #include "xc.h"
 
+void timerInit()
+{
+    IEC0bits.T2IE = 1;
+    IFS0bits.T2IF = 0;
+    T2CONbits.T32 = 0;
+    
+    T2CONbits.TON = 0;
+    PR2           = 0;
+    TMR2          = 0;
+}
+
 void delay_ms(uint16_t time_ms)
 {
     switch(time_ms)
@@ -35,7 +46,7 @@ void delay_ms(uint16_t time_ms)
     if (PR2 > 0)
     {
         T2CONbits.TON = 1;
+        Idle();
     }
-    
-    Idle();
+    asm("nop");
 }
