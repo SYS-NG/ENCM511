@@ -29,14 +29,14 @@ void IOinit() {
     CNPU1bits.CN1PUE  = 1;
     
     // Switch clock to 500 kHz
-    SRbits.IPL = 7;
     CLKDIVbits.RCDIV = 0;
     __builtin_write_OSCCONH(0x66);
-    __builtin_write_OSCCONL(0x00);
+    __builtin_write_OSCCONL(0x01);
     OSCCONbits.OSWEN = 1;
-    while (OSCCONbits.OSWEN == 1)
-    {}
+    while (OSCCONbits.OSWEN == 1);
     
+    T2CONbits.TCKPS = 0b10;
+            
     SRbits.IPL = 0;
     
 }
@@ -88,6 +88,10 @@ void IOcheck() {
     if (toggle)
     {
         toggleLED();
+    }
+    else
+    {
+        LATBbits.LATB8 = 0;
     }
     
 }
