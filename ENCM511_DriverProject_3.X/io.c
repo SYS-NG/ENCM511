@@ -7,6 +7,8 @@
 
 
 #include "xc.h"
+#include "timer.h"
+
 
 void IOinit() {
    
@@ -17,17 +19,6 @@ void IOinit() {
     
     // SET up OUTPUT Ports
     TRISBbits.TRISB8 = 0;
-        
-    // Enable Input Change Notification Interrupt
-    IEC1bits.CNIE = 1;
-    
-    // Enable individual interrupt pins
-    CNEN2bits.CN30IE = 1;
-    CNEN1bits.CN0IE  = 1;
-    CNEN1bits.CN1IE  = 1;
-    
-    // Set Input Change Notification Flag to 0
-    IFS1bits.CNIF = 0;
     
     // Select digital on pin 7
     AD1PCFGbits.PCFG4 = 1;
@@ -36,74 +27,67 @@ void IOinit() {
     CNPU2bits.CN30PUE = 1;
     CNPU1bits.CN0PUE  = 1;
     CNPU1bits.CN1PUE  = 1;
+    
+    // Switch clock to 500 kHz
+    SRbits.IPL = 7;
+    CLKDIVbits.RCDIV = 0;
+    __builtin_write_OSCCONH(0x66);
+    __builtin_write_OSCCONL(0x00);
+    OSCCONbits.OSWEN = 1;
+    while (OSCCONbits.OSWEN == 1)
+    {}
+    
+    SRbits.IPL = 0;
+    
 }
 
-uint8_t IOcheck() {
+
+void toggleLED()
+{
+    // ~ operator complements the bit
+    
+    LATBbits.LATB8 = ~LATBbits.LATB8;
+}
+
+
+void IOcheck() {
     
     uint8_t PB1 = !(PORTAbits.RA2);
     uint8_t PB2 = !(PORTAbits.RA4);
     uint8_t PB3 = !(PORTBbits.RB4);
     
-    if ((PB1 && !PB2 && !PB3) || (!PB1 && PB2 && !PB3) || (!PB1 && !PB2 && PB3)) {
-        
-        // If only one of three buttons is actively pressed...
-        if(PB1)
-            return 0;
-        else if(PB2)
-            return 1;
-        else if(PB3)
-            return 2;
-        
-    } else if (!(PB1 || PB2 || PB3)) {
-        
-        // If no buttons are actively pressed...
-        return 3;
-        
-    } else {
-        
-        // More than one buttons are actively pressed
-        return 4;
-        
-    }
-}
-
-void setStateConditions(uint8_t state) {
+    uint8_t PB = PB3 << 2 + PB2 << 1 + PB1;
     
-    // For states 0-2 (dynamic states), reset LATB8 because
-    // the LED will toggle back on once arriving back in main()
+    uint16_t delay;
+    uint8_t toggle = 1;
     
-    // For states 3 and 4 (static states), set/reset the LED. 
-    // LED will not be toggled again until entering a dynamic state
-    
-    switch(state)
+    switch (PB)
     {
-        case 0:
-            LATBbits.LATB8 = 0;
+        
+        case 0b001:
+            delay = 500;
             break;
-            
-        case 1:
-            LATBbits.LATB8 = 0;
+        case 0b010:
+            delay = 1000;
             break;
-            
-        case 2:
-            LATBbits.LATB8 = 0;
+        case 0b100:
+            delay = 5000;
             break;
-
-        case 3:
-            LATBbits.LATB8 = 0;
+        case 0b011:
+            delay = 1;
             break;
-            
-        case 4:
-            LATBbits.LATB8 = 1;
+        default:
+            delay = 0;
+            toggle = 0;
             break;
             
     }
     
-    counter = 0;
-}
-
-void toggleLED() {
-    // ~ operator complements the bit
+    delay_ms(delay);
     
-    LATBbits.LATB8 = ~LATBbits.LATB8;
+    if (toggle)
+    {
+        toggleLED();
+    }
+    
 }
