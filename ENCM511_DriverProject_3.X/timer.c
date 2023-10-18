@@ -50,10 +50,12 @@ void delay_ms(uint16_t time_ms)
             break;
     }
     
+    // If PR2 is set to a non zero value,
+    // turn on Timer2 and enter Idle till interrupt
     if (PR2 > 0)
     {
         T2CONbits.TON = 1;
         Idle();
     }
-    asm("nop");
+    
 }

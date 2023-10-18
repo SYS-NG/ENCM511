@@ -44,7 +44,6 @@ int main(void) {
     while(1)
     {
         // Check I/O states and delay
-        asm("nop");
         IOcheck();
     }
     
