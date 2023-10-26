@@ -24,6 +24,15 @@ void IOinit()
     // Select digital on pin 7
     AD1PCFGbits.PCFG4 = 1;
     
+    // Enable Input Change Notification Interrupt
+    IEC1bits.CNIE = 1;
+    IFS1bits.CNIF = 0;
+    
+    // Enable individual interrupt pins
+    CNEN2bits.CN30IE = 1;
+    CNEN1bits.CN0IE  = 1;
+    CNEN1bits.CN1IE  = 1;
+    
     // Set weak pull up for inputs
     CNPU2bits.CN30PUE = 1;
     CNPU1bits.CN0PUE  = 1;
