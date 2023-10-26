@@ -79,7 +79,7 @@ void _ISR _T1Interrupt(void)
     if (trigger > 0)
     {
         // Fast mode states
-        
+        asm("nop");
         if (current_state == F0)
         {
             if (trigger == 0b100)
@@ -284,8 +284,12 @@ void _ISR _T1Interrupt(void)
             state_change = 0;
         }
         
+        
     }
     
+    previous_PB1 = PB1;
+    previous_PB2 = PB2;
+    previous_PB3 = PB3;
     
     // Enable CN interrupts
     IEC1bits.CNIE    = 1;
@@ -333,6 +337,7 @@ int main(void) {
         //          = 976.56
         //          = 977 
         asm("nop");
+        LATBbits.LATB8 = 1;
         if (state_change)
         {
             TMR2 = 0;

@@ -21,6 +21,15 @@ void IOinit()
     // SET up OUTPUT Ports
     TRISBbits.TRISB8 = 0;
     
+    // Enable Input Change Notification Interrupt
+    IEC1bits.CNIE = 1;
+    IFS1bits.CNIF = 0;
+    
+    // Enable individual interrupt pins
+    CNEN2bits.CN30IE = 1;
+    CNEN1bits.CN0IE  = 1;
+    CNEN1bits.CN1IE  = 1;
+    
     // Select digital on pin 7
     AD1PCFGbits.PCFG4 = 1;
     
