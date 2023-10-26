@@ -4,7 +4,6 @@
  *
  * Created on September 28, 2023, 8:47 AM
  */
-
 // FOSCSEL
 #pragma config FNOSC = FRCDIV           // Oscillator Select (8 MHz FRC oscillator with divide-by-N (FRCDIV))
 #pragma config IESO = ON                // Internal External Switch Over bit (Internal External Switchover mode enabled (Two-Speed Start-up enabled))
@@ -36,43 +35,8 @@ void _ISR _T2Interrupt(void)
     IEC0bits.T2IE = 1;
 }
 
-int UARTexample(void)
-{
-    
-    char str[] = "Hello World!\n\r";
-    
-    char buffer[20];
-    
-    while (1)
-    {
-        
-        /*
-        XmitUART2('a', 5);
-        XmitUART2('\n', 1);
-        XmitUART2('\r', 1);
-        Disp2String(str);
-        XmitUART2(0x1b,1); //ESC   
-        XmitUART2('[', 1);
-        XmitUART2('H', 1);
-        */
-        
-        Disp2String("What is your name?\n\r");
-        RecvUart(buffer, 20);
-        Disp2String("\nHello");
-        Disp2String(buffer);
-        
-        
-        for(uint32_t i = 0; i < 6000; i++);
-        
-    }
-    
-    
-    
-}
-
 int main(void) {
     
-    /*
     // Configure I/O and interrupts
     IOinit();
     timerInit();
@@ -83,13 +47,6 @@ int main(void) {
         // Check I/O states and delay
         IOcheck();
     }
-    */
-    
-    timerInit();
-    
-    InitUART2();
-    
-    UARTexample();
     
     return 0;
 }
