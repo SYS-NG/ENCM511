@@ -190,7 +190,7 @@ void _ISR _T1Interrupt(void)
                 state_change = 1;
             }      
         }
-        if (current_state == F4)
+        else if (current_state == F4)
         {
             if (trigger == 0b100)
             {
@@ -319,6 +319,7 @@ void _ISR _T2Interrupt(void)
 
 int main(void) {
     
+    
     // Configure I/O and interrupts
     IOinit();
     timerInit();
@@ -337,7 +338,7 @@ int main(void) {
         //          = 976.56
         //          = 977 
         asm("nop");
-        LATBbits.LATB8 = 1;
+        
         if (state_change)
         {
             TMR2 = 0;
