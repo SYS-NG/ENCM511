@@ -30,7 +30,7 @@ void timerInit()
     IEC0bits.T1IE = 1; // Enable Timer1 Interrupt
     IFS0bits.T1IF = 0; // Lower Timer1 Interrupt Status Flag
     T1CONbits.TON = 0; // Turn off timer1
-    PR1           = 40;
+    PR1           = 80;
     TMR1          = 0;
     
     IEC0bits.T2IE = 1; // Enable Timer2 Interrupt

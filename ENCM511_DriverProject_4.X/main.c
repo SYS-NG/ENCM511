@@ -275,15 +275,9 @@ void _ISR _T2Interrupt(void)
     IEC0bits.T2IE = 1;
 }
 
-int main(void) {
+int main(void)
+{
     
-    
-    /*
-    while(1) {
-        XmitUART2('a', 5);
-        for(uint32_t i = 0; i < 60000; i++);
-    }
-     */
     // Configure I/O and interrupts
     IOinit();
     timerInit();
@@ -377,7 +371,19 @@ int main(void) {
                     break;
 
             }
+            
+            // Clear terminal window
+            XmitUART2(0x1b,1); //ESC   
+            XmitUART2('[', 1);
+            XmitUART2('H', 1);
+            Disp2String("                                  ");
+            
+            // Print to terminal window
+            XmitUART2(0x1b,1); //ESC   
+            XmitUART2('[', 1);
+            XmitUART2('H', 1);
             Disp2String(disp_str);
+            
             state_change = 0;
             asm("nop");
         }
