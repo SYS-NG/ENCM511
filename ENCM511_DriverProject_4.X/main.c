@@ -116,111 +116,61 @@ void _ISR _T1Interrupt(void)
                 current_state = F0;
                 state_change = 1;
             }
-            else if (trigger == 0b010)
-            {
-                current_state = F2;
-                state_change = 1;
-            }
-            else if (trigger == 0b001)
-            {
-                current_state = F3;
-                state_change = 1;
-            }
-            else if (trigger == 0b111)
-            {
-                state_change = 0;
-            }
             else
             {
-                current_state = F4;
-                state_change = 1;
+                state_change = 0;
             }      
         }
         else if (current_state == F2)
         {
-            if (trigger == 0b100)
-            {
-                current_state = F1;
-                state_change = 1;
-            }
-            else if (trigger == 0b010)
+            if (trigger == 0b010)
             {
                 current_state = F0;
                 state_change = 1;
             }
-            else if (trigger == 0b001)
-            {
-                current_state = F3;
-                state_change = 1;
-            }
-            else if (trigger == 0b111)
-            {
-                state_change = 0;
-            }
             else
             {
-                current_state = F4;
-                state_change = 1;
+                state_change = 0;
             }      
         }
         else if (current_state == F3)
         {
-            if (trigger == 0b100)
-            {
-                current_state = F1;
-                state_change = 1;
-            }
-            else if (trigger == 0b010)
-            {
-                current_state = F2;
-                state_change = 1;
-            }
-            else if (trigger == 0b001)
+            if (trigger == 0b001)
             {
                 current_state = F0;
                 state_change = 1;
             }
-            else if (trigger == 0b111)
-            {
-                state_change = 0;
-            }
             else
             {
-                current_state = F4;
-                state_change = 1;
+                state_change = 0;
             }      
         }
         else if (current_state == F4)
         {
             if (trigger == 0b100)
             {
-                current_state = F1;
+                current_state = F0;
                 state_change = 1;
             }
             else if (trigger == 0b010)
             {
-                current_state = F2;
+                current_state = F0;
                 state_change = 1;
             }
             else if (trigger == 0b001)
             {
-                current_state = F3;
+                current_state = F0;
                 state_change = 1;
-            }
-            else if (trigger == 0b111)
-            {
-                state_change = 0;
             }
             else
             {
-                current_state = F0;
-                state_change = 1;
+                state_change = 0;
             }      
         }
-        
-        
+
+
         // Slow mode states
-        
+
         else if (current_state == S0)
         {
             if (trigger == 0b100)
@@ -251,11 +201,6 @@ void _ISR _T1Interrupt(void)
                 current_state = S0;
                 state_change = 1;
             }
-            else if (trigger == 0b010)
-            {
-                current_state = S2;
-                state_change = 1;
-            }
             else
             {
                 state_change = 0;
@@ -263,12 +208,7 @@ void _ISR _T1Interrupt(void)
         }
         else if (current_state == S2)
         {
-            if (trigger == 0b100)
-            {
-                current_state = S1;
-                state_change = 1;
-            }
-            else if (trigger == 0b010)
+            if (trigger == 0b010)
             {
                 current_state = S0;
                 state_change = 1;
@@ -283,8 +223,7 @@ void _ISR _T1Interrupt(void)
             // By default, assume no state transition occurs
             state_change = 0;
         }
-        
-        
+
     }
     
     previous_PB1 = PB1;
