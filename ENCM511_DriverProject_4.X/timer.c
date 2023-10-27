@@ -27,16 +27,16 @@ void timerInit()
     // Set CPU interrupt priority to 0
     SRbits.IPL = 0;
     
-    IEC0bits.T1IE = 1; // Enable Timer1 Interrupt
-    IFS0bits.T1IF = 0; // Lower Timer1 Interrupt Status Flag
-    T1CONbits.TON = 0; // Turn off timer1
-    PR1           = 80;
-    TMR1          = 0;
+    IEC0bits.T1IE = 1;  // Enable Timer1 Interrupt
+    IFS0bits.T1IF = 0;  // Lower Timer1 Interrupt Status Flag
+    T1CONbits.TON = 0;  // Turn off timer1
+    PR1           = 80; // Approx 20ms for debouncing
+    TMR1          = 0;  // Set TMR2 to 0
     
     IEC0bits.T2IE = 1; // Enable Timer2 Interrupt
     IFS0bits.T2IF = 0; // Lower Timer2 Interrupt Status Flag
     T2CONbits.T32 = 0; // Set Timer2 to be 16 bit
     T2CONbits.TON = 0; // Turn off timer2
     PR2           = 0; // Set Timer2 Period to 0
-    TMR2          = 0; // Set TMR2 to 0;
+    TMR2          = 0; // Set TMR2 to 0
 }

@@ -30,12 +30,14 @@ uint8_t PB_action      = 0;
 
 void _ISR _CNInterrupt(void)
 {
-    //Disp2String("Change detected\n\r");
+    // Disp2String("Change detected\n\r");
     asm("nop");
     
     // Disable Input Change Notification Interrupt and lower flag
     IEC1bits.CNIE = 0; 
     IFS1bits.CNIF = 0;
+
+    // Turn on Timer1 to allow for debouncing
     T1CONbits.TON = 1;
 }
 
@@ -82,29 +84,35 @@ void _ISR _T1Interrupt(void)
     {
         // Fast mode states
         asm("nop");
+        // Idle Mode: Fast
         if (current_state == F0)
         {
+            // PB1 released
             if (trigger == 0b100)
             {
                 current_state = F1;
                 state_change = 1;
             }
+            // PB2 released
             else if (trigger == 0b010)
             {
                 current_state = F2;
                 state_change = 1;
             }
+            // PB3 released
             else if (trigger == 0b001)
             {
                 current_state = F3;
                 state_change = 1;
             }
+            // All three PB released
             else if (trigger == 0b111)
             {
                 // Transition from fast to slow mode
                 current_state = S0;
                 state_change = 1;
             }
+            // 2 PB released
             else
             {
                 PB_action = 0;
@@ -127,6 +135,7 @@ void _ISR _T1Interrupt(void)
                 state_change = 1;
             }      
         }
+        // 0.25s interval state
         else if (current_state == F1)
         {
             if (trigger == 0b100)
@@ -139,6 +148,7 @@ void _ISR _T1Interrupt(void)
                 state_change = 0;
             }      
         }
+        // 0.5s interval state
         else if (current_state == F2)
         {
             if (trigger == 0b010)
@@ -151,6 +161,7 @@ void _ISR _T1Interrupt(void)
                 state_change = 0;
             }      
         }
+        // 1s interval state
         else if (current_state == F3)
         {
             if (trigger == 0b001)
@@ -188,7 +199,7 @@ void _ISR _T1Interrupt(void)
 
 
         // Slow mode states
-
+        // Idle Mode: SLow
         else if (current_state == S0)
         {
             if (trigger == 0b100)
@@ -212,6 +223,7 @@ void _ISR _T1Interrupt(void)
                 state_change = 0;
             }      
         }
+        // 5s interval state
         else if (current_state == S1)
         {
             if (trigger == 0b100)
@@ -224,6 +236,7 @@ void _ISR _T1Interrupt(void)
                 state_change = 0;
             }      
         }
+        // 3s interval state
         else if (current_state == S2)
         {
             if (trigger == 0b010)
@@ -244,6 +257,7 @@ void _ISR _T1Interrupt(void)
 
     }
     
+    // Update previous button state
     previous_PB1 = PB1;
     previous_PB2 = PB2;
     previous_PB3 = PB3;
@@ -278,7 +292,7 @@ void _ISR _T2Interrupt(void)
 int main(void)
 {
     
-    // Configure I/O and interrupts
+    // Configure I/O, interrupts, and UART2
     IOinit();
     timerInit();
     InitUART2();
@@ -302,6 +316,7 @@ int main(void)
         {
             //Disp2String("State Change detected\n\r");
             TMR2 = 0;
+            // In each case configure the LED, Timer 2 interrupt settings, and string to output via UART2
             switch (current_state)
             {
 
@@ -364,7 +379,7 @@ int main(void)
                     PR2            = 11719;
                     break;
 
-                default: // F0
+                default: // F0 Default state
                     disp_str = "Fast Mode: IDLE\n\r";
                     LATBbits.LATB8 = 0;
                     T2CONbits.TON  = 0;
@@ -388,6 +403,7 @@ int main(void)
             asm("nop");
         }
 
+        // Wait till next interrupt to repeat state logic
         Idle();
     }
     
