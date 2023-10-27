@@ -30,7 +30,7 @@ uint8_t PB_action      = 0;
 
 void _ISR _CNInterrupt(void)
 {
-    Disp2String("Change detected\n\r");
+    //Disp2String("Change detected\n\r");
     asm("nop");
     
     // Disable Input Change Notification Interrupt and lower flag
@@ -42,7 +42,7 @@ void _ISR _CNInterrupt(void)
 // Timer1 Interrupt Service Routine
 void _ISR _T1Interrupt(void)
 {   
-    Disp2String("T1 Interrupt\n\r");
+    //Disp2String("T1 Interrupt\n\r");
     asm("nop");
     // Disable Timer1 Interrupt and lower interrupt flag
     IEC0bits.T1IE = 0;
@@ -262,7 +262,7 @@ void _ISR _T1Interrupt(void)
 // Timer2 Interrupt Service Routine void _ISR _T1Interrupt(void)
 void _ISR _T2Interrupt(void)
 {   
-    Disp2String("T2 Interrupt\n\r");
+    //Disp2String("T2 Interrupt\n\r");
     asm("nop");
     // Disable Timer2 Interrupt and lower interrupt flag
     IEC0bits.T2IE = 0;
@@ -306,7 +306,7 @@ int main(void) {
         
         if (state_change)
         {
-            Disp2String("State Change detected\n\r");
+            //Disp2String("State Change detected\n\r");
             TMR2 = 0;
             switch (current_state)
             {
@@ -333,11 +333,11 @@ int main(void) {
                     break;
 
                 case F4:
-                    if ( action_PB == 0b110)
+                    if ( PB_action == 0b110)
                     {
                         disp_str = "Fast Mode: PB1 and PB2 are pressed\n\r";
                     }
-                    else if ( action_PB == 0b101 )
+                    else if ( PB_action == 0b101 )
                     {
                         disp_str = "Fast Mode: PB1 and PB3 are pressed\n\r";
                     }
@@ -351,7 +351,7 @@ int main(void) {
                     break;
 
                 case S0:
-                    disp_str = "SLow Mode: IDLE\n\r";
+                    disp_str = "Slow Mode: IDLE\n\r";
                     LATBbits.LATB8 = 0;
                     T2CONbits.TON  = 0;
                     break;
