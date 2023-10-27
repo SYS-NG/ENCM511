@@ -107,6 +107,22 @@ void _ISR _T1Interrupt(void)
             }
             else
             {
+                PB_action = 0;
+                
+                if ((PB1 == 0) && (previous_PB1 == 1))
+                {
+                    PB_action += 1 << 2;
+                }
+
+                if ((PB2 == 0) && (previous_PB2 == 1))
+                {
+                    PB_action += 1 << 1;
+                }
+
+                if ((PB3 == 0) && (previous_PB3 == 1))
+                {
+                    PB_action += 1 << 0;
+                }
                 current_state = F4;
                 state_change = 1;
             }      
