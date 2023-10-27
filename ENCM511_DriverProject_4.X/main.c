@@ -317,7 +317,19 @@ int main(void) {
                     break;
 
                 case F4:
-                    disp_str = "Fast Mode: PB_ and PB_ are pressed\n\r";
+                    if ( action_PB == 0b110)
+                    {
+                        disp_str = "Fast Mode: PB1 and PB2 are pressed\n\r";
+                    }
+                    else if ( action_PB == 0b101 )
+                    {
+                        disp_str = "Fast Mode: PB1 and PB3 are pressed\n\r";
+                    }
+                    else
+                    {
+                        disp_str = "Fast Mode: PB2 and PB3 are pressed\n\r";
+                    }
+
                     LATBbits.LATB8 = 1;
                     T2CONbits.TON  = 0;
                     break;

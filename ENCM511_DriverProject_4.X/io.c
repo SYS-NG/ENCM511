@@ -37,4 +37,6 @@ void IOinit()
     CNPU2bits.CN30PUE = 1;
     CNPU1bits.CN0PUE  = 1;
     CNPU1bits.CN1PUE  = 1;
+    
+    IPC4bits.CNIP     = 0x3;
 }
