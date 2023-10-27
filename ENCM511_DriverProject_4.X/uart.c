@@ -24,7 +24,7 @@ void InitUART2(void)
 	U2MODEbits.USIDL = 0;	// Bit13 Continue in Idle
 	U2MODEbits.IREN = 0;	// Bit12 No IR translation
 	U2MODEbits.RTSMD = 0;	// Bit11 Flow Control Mode Mode
-	U2MODEbits.UEN = 00;		// Bits8,9 TX,RX enabled, CTS,RTS not
+	U2MODEbits.UEN = 00;    // Bits8,9 TX,RX enabled, CTS,RTS not
 	U2MODEbits.WAKE = 0;	// Bit7 No Wake up (since we don't sleep here)
 	U2MODEbits.LPBACK = 0;	// Bit6 No Loop Back
 	U2MODEbits.ABAUD = 0;	// Bit5 No Autobaud (would require sending '55')

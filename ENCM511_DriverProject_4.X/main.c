@@ -30,7 +30,7 @@ uint8_t PB_action      = 0;
 
 void _ISR _CNInterrupt(void)
 {
-    Disp2String("Change detected");
+    Disp2String("Change detected\n\r");
     asm("nop");
     
     // Disable Input Change Notification Interrupt and lower flag
@@ -42,7 +42,7 @@ void _ISR _CNInterrupt(void)
 // Timer1 Interrupt Service Routine
 void _ISR _T1Interrupt(void)
 {   
-    Disp2String("T1 Interrupt");
+    Disp2String("T1 Interrupt\n\r");
     asm("nop");
     // Disable Timer1 Interrupt and lower interrupt flag
     IEC0bits.T1IE = 0;
@@ -246,7 +246,7 @@ void _ISR _T1Interrupt(void)
 // Timer2 Interrupt Service Routine void _ISR _T1Interrupt(void)
 void _ISR _T2Interrupt(void)
 {   
-    Disp2String("T2 Interrupt");
+    Disp2String("T2 Interrupt\n\r");
     asm("nop");
     // Disable Timer2 Interrupt and lower interrupt flag
     IEC0bits.T2IE = 0;
@@ -261,14 +261,17 @@ void _ISR _T2Interrupt(void)
 
 int main(void) {
     
-    InitUART2();
+    
+    /*
     while(1) {
         XmitUART2('a', 5);
         for(uint32_t i = 0; i < 60000; i++);
     }
+     */
     // Configure I/O and interrupts
     IOinit();
     timerInit();
+    InitUART2();
     
     char *disp_str;
 
@@ -287,60 +290,60 @@ int main(void) {
         
         if (state_change)
         {
-            Disp2String("State Change detected");
+            Disp2String("State Change detected\n\r");
             TMR2 = 0;
             switch (current_state)
             {
 
                 case F1:
-                    disp_str = "Fast Mode: PB1 was pressed";
+                    disp_str = "Fast Mode: PB1 was pressed\n\r";
                     LATBbits.LATB8 = 1;
                     T2CONbits.TON  = 1;
                     PR2            = 977;
                     break;
 
                 case F2:
-                    disp_str = "Fast Mode: PB2 was pressed";
+                    disp_str = "Fast Mode: PB2 was pressed\n\r";
                     LATBbits.LATB8 = 1;
                     T2CONbits.TON  = 1;
                     PR2            = 1953;
                     break;
 
                 case F3:
-                    disp_str = "Fast Mode: PB3 was pressed";
+                    disp_str = "Fast Mode: PB3 was pressed\n\r";
                     LATBbits.LATB8 = 1;
                     T2CONbits.TON  = 1;
                     PR2            = 3906;
                     break;
 
                 case F4:
-                    disp_str = "Fast Mode: PB_ and PB_ are pressed";
+                    disp_str = "Fast Mode: PB_ and PB_ are pressed\n\r";
                     LATBbits.LATB8 = 1;
                     T2CONbits.TON  = 0;
                     break;
 
                 case S0:
-                    disp_str = "SLow Mode: IDLE";
+                    disp_str = "SLow Mode: IDLE\n\r";
                     LATBbits.LATB8 = 0;
                     T2CONbits.TON  = 0;
                     break;
                     
                 case S1:
-                    disp_str = "Slow Mode: PB1 was pressed";
+                    disp_str = "Slow Mode: PB1 was pressed\n\r";
                     LATBbits.LATB8 = 1;
                     T2CONbits.TON  = 1;
                     PR2            = 19531;
                     break;
                     
                 case S2:
-                    disp_str = "Slow Mode: PB2 was pressed";
+                    disp_str = "Slow Mode: PB2 was pressed\n\r";
                     LATBbits.LATB8 = 1;
                     T2CONbits.TON  = 1;
                     PR2            = 11719;
                     break;
 
                 default: // F0
-                    disp_str = "Fast Mode: IDLE";
+                    disp_str = "Fast Mode: IDLE\n\r";
                     LATBbits.LATB8 = 0;
                     T2CONbits.TON  = 0;
                     break;

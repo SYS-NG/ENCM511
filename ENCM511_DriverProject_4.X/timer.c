@@ -21,6 +21,7 @@ void timerInit()
     while (OSCCONbits.OSWEN == 1);
     
     // Set 1:64 prescaler on TIMER2
+    T1CONbits.TCKPS = 0b10;
     T2CONbits.TCKPS = 0b10;
     
     // Set CPU interrupt priority to 0
@@ -29,7 +30,7 @@ void timerInit()
     IEC0bits.T1IE = 1; // Enable Timer1 Interrupt
     IFS0bits.T1IF = 0; // Lower Timer1 Interrupt Status Flag
     T1CONbits.TON = 0; // Turn off timer1
-    PR1           = 39;
+    PR1           = 40;
     TMR1          = 0;
     
     IEC0bits.T2IE = 1; // Enable Timer2 Interrupt
