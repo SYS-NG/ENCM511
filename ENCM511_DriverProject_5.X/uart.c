@@ -179,14 +179,6 @@ char RecvUartChar()
     }
 }
 
-void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
-
-	IFS1bits.U2RXIF = 0;
-    
-    received_char = U2RXREG;
-    
-    RXFlag = 1;
-}
 
 void __attribute__ ((interrupt, no_auto_psv)) _U2TXInterrupt(void) {
 	IFS1bits.U2TXIF = 0;
