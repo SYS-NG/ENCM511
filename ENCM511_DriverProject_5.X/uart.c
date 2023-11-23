@@ -10,9 +10,64 @@
 #include "UART.h"
 #include "string.h"
 
+#define VSUPPLY 3
+#define BLOCK 254
+#define BLANK 32
+
 uint8_t received_char = 0;
 uint8_t RXFlag = 0;
 // extern uint16_t CNflag; // uncomment if CNflag is implemented to break out of the busy wait for new input
+
+
+void uart_send(char mode, uint8_t ADC_out)
+{
+    Disp2String("Test");
+    
+    if(0)
+    {
+    
+        float voltage = 3 * ADC_out / 1023;
+
+        char disp_bar[31];
+        char disp_value[9];
+
+        for(int i = 0; i < 30; i++)
+        {
+
+            if (voltage < ((i + 1) * VSUPPLY / 30))
+            {
+                disp_bar[i] = BLANK;
+            }
+            else
+            {
+                disp_bar[i] = BLOCK;
+            }
+
+        }
+
+        disp_bar[30] = '\0';
+
+        sprintf(disp_value, " %5.3f V", voltage);
+
+        disp_value[9] = '\0';
+
+        // Clear terminal window
+        XmitUART2(0x1b,1); //ESC   
+        XmitUART2('[', 1);
+        XmitUART2('H', 1);
+        Disp2String("                                        ");
+
+        // Print to terminal window
+        XmitUART2(0x1b,1); //ESC   
+        XmitUART2('[', 1);
+        XmitUART2('H', 1);
+        Disp2String(disp_bar);
+        Disp2String(disp_value);
+        
+    }
+    
+}
+
 
 void InitUART2(void) 
 {
@@ -62,7 +117,8 @@ void InitUART2(void)
 
 	U2MODEbits.UARTEN = 1;	// And turn the peripheral on
     
-//	U2STAbits.UTXEN = 1;
+    //	U2STAbits.UTXEN = 1;
+
 }
 
 
