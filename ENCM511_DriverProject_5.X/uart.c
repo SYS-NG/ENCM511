@@ -21,7 +21,7 @@ uint8_t RXFlag = 0;
 
 void uart_send(char mode, uint8_t ADC_out)
 {
-    float voltage = 3 * ADC_out / 1023;
+    float voltage = 3 * (float)ADC_out / 1023;
     char  disp_bar[31];
     char  disp_value[9];
 

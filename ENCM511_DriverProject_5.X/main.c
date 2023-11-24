@@ -62,14 +62,13 @@ void _ISR _T1Interrupt(void)
 void _ISR _ADC1Interrupt(void)
 {
     LATBbits.LATB8 = 1;
-    //Disp2String("UART Interrupt\n\r");
-    asm("nop");
+
     // Disable ADC Interrupt and lower interrupt flag
     IEC0bits.AD1IE = 0;
     IFS0bits.AD1IF = 0;
     
-    digitalRatio_g   = ADC1BUF0;
     AD1CON1bits.SAMP = 0;
+    digitalRatio_g   = ADC1BUF0;
     AD1CON1bits.ADON = 0;
 
     // Enable ADC interrupts
@@ -84,11 +83,25 @@ int main(void)
     InitUART2();
     
     TRISBbits.TRISB8 = 0;
+    char  disp_value[9];
     
     // Forever loop
     while(1)
     {
         asm("nop");
+//        sprintf(disp_value, "%d", digitalRatio_g);
+//        // Clear terminal window
+//        XmitUART2(0x1b,1); //ESC   
+//        XmitUART2('[', 1);
+//        XmitUART2('H', 1);
+//        Disp2String("                                        ");
+//
+//        // Print to terminal window
+//        XmitUART2(0x1b,1); //ESC   
+//        XmitUART2('[', 1);
+//        XmitUART2('H', 1);
+//        Disp2String(disp_value);
+        
         uart_send(mode_g, digitalRatio_g);
         // Wait till next interrupt to repeat state logic
         Idle();
