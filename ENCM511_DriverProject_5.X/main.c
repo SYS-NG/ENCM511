@@ -83,12 +83,26 @@ int main(void)
     InitUART2();
     
     TRISBbits.TRISB8 = 0;
-    char  disp_value[9];
+    LATBbits.LATB8 = 0;
     
     // Forever loop
     while(1)
     {
         asm("nop");
+        
+        AD1CON1bits.ADON = 1;
+        AD1CON1bits.SAMP = 1;
+        
+        while(AD1CON1bits.DONE == 0) {};
+        
+        digitalRatio_g = ADC1BUF0;
+        
+        AD1CON1bits.SAMP = 0;
+        AD1CON1bits.ADON = 0;
+        
+        uart_send(mode_g, digitalRatio_g);
+        
+        
 //        sprintf(disp_value, "%d", digitalRatio_g);
 //        // Clear terminal window
 //        XmitUART2(0x1b,1); //ESC   
@@ -102,9 +116,9 @@ int main(void)
 //        XmitUART2('H', 1);
 //        Disp2String(disp_value);
         
-        uart_send(mode_g, digitalRatio_g);
         // Wait till next interrupt to repeat state logic
-        Idle();
+        for(int i = 0; i < 10000; i++);
+        
     }
     
     return 0;

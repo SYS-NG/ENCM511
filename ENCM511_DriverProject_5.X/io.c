@@ -23,7 +23,7 @@ void IOinit()
     IFS0bits.AD1IF    = 0;
     AD1CON1bits.SSRC  = 0b111;
     AD1CON1bits.FORM  = 0;
-    AD1CON1bits.ASAM  = 0;
+    AD1CON1bits.ASAM  = 1;
     AD1CON2bits.VCFG  = 0;
     AD1CON2bits.CSCNA = 0;
     AD1CON2bits.SMPI  = 0;
