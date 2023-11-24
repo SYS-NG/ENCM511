@@ -31,7 +31,7 @@ void _ISR _U2RXInterrupt(void) {
 	IFS1bits.U2RXIF = 0;
     IEC1bits.U2RXIE = 0;
 
-    received_char = U2RXREG;
+    char received_char = U2RXREG;
     if ( received_char == 'x' || received_char == 'd' ) {
         mode_g = received_char;
     }
@@ -41,7 +41,7 @@ void _ISR _U2RXInterrupt(void) {
 
 // Timer1 Interrupt Service Routine
 void _ISR _T1Interrupt(void)
-{   
+{   LATBbits.LATB8 = 1;
     // Disable Timer1 Interrupt and lower interrupt flag
     IEC0bits.T1IE = 0;
     IFS0bits.T1IF = 0;
@@ -55,6 +55,8 @@ void _ISR _T1Interrupt(void)
     T1CONbits.TON = 1;
     // Enable Timer1 Interrupt
     IEC0bits.T1IE = 1;
+    
+    
 }
 
 void _ISR _ADC1TInterrupt(void)
@@ -70,7 +72,7 @@ void _ISR _ADC1TInterrupt(void)
     AD1CON1bits.ADON = 0;
 
     // Enable ADC interrupts
-    IEC1bits.AD1IE = 1;
+    IEC0bits.AD1IE = 1;
 }
 
 int main(void)
@@ -80,11 +82,13 @@ int main(void)
     timerInit();
     InitUART2();
     
+    TRISBbits.TRISB8 = 0;
+    
     // Forever loop
     while(1)
     {
         asm("nop");
-        uart_send(mode, digitalRatio_g);
+        uart_send(mode_g, digitalRatio_g);
         // Wait till next interrupt to repeat state logic
         Idle();
     }

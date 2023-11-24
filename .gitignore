@@ -21,3 +21,4 @@
 **/disassembly/
 *.map
 **/.generated_files
+**/*.zip
