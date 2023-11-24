@@ -63,7 +63,7 @@
 // TODO Insert declarations or function prototypes (right here) to leverage 
 // live documentation
 
-void uart_send(char mode, uint8_t ADC_out);
+void uart_send(char mode, uint16_t ADC_out);
 void InitUART2(void);
 void Disp2String(char *str);
 void XmitUART2(char CharNum, unsigned int repeatNo);

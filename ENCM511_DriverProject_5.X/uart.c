@@ -19,7 +19,7 @@ uint8_t RXFlag = 0;
 // extern uint16_t CNflag; // uncomment if CNflag is implemented to break out of the busy wait for new input
 
 
-void uart_send(char mode, uint8_t ADC_out)
+void uart_send(char mode, uint16_t ADC_out)
 {
     float voltage = 3 * (float)ADC_out / 1023;
     char  disp_bar[31];
