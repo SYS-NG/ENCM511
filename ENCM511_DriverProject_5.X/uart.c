@@ -11,7 +11,7 @@
 #include "string.h"
 
 #define VSUPPLY 3
-#define BLOCK 254
+#define BLOCK 178
 #define BLANK 32
 
 uint8_t received_char = 0;
@@ -21,7 +21,7 @@ uint8_t RXFlag = 0;
 
 void uart_send(char mode, uint8_t ADC_out)
 {
-    float voltage = 3 * (float)ADC_out / 1023;
+    float voltage = 3 * (float)ADC_out / (float)255;
     char  disp_bar[31];
     char  disp_value[9];
 

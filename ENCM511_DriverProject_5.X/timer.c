@@ -9,10 +9,7 @@
 
 // Configure Timer Registers
 void timerInit()
-{
-    // Set CPU interrupt priority to 7 (disable user interrupt))
-    SRbits.IPL = 7;
-    
+{   
     // Switch clock to 500 kHz
     CLKDIVbits.RCDIV = 0;
     __builtin_write_OSCCONH(0x66);

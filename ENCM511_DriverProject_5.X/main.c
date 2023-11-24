@@ -40,39 +40,47 @@ void _ISR _U2RXInterrupt(void) {
 }
 
 // Timer1 Interrupt Service Routine
-void _ISR _T1Interrupt(void)
-{   
-    // Disable Timer1 Interrupt and lower interrupt flag
-    IEC0bits.T1IE = 0;
-    IFS0bits.T1IF = 0;
+// void _ISR _T1Interrupt(void)
+// {   
+//     // Disable Timer1 Interrupt and lower interrupt flag
+//     IEC0bits.T1IE = 0;
+//     IFS0bits.T1IF = 0;
 
-    // Turn on ADC
-    AD1CON1bits.ADON = 1;
-    AD1CON1bits.SAMP = 1;
+//     // Turn on ADC
+//     AD1CON1bits.ADON = 1;
+//     AD1CON1bits.SAMP = 1;
 
-    // Turn off timer1 and reset TMR1 to 0
-    TMR1          = 0;
-    T1CONbits.TON = 1;
-    // Enable Timer1 Interrupt
-    IEC0bits.T1IE = 1;
+//     // Turn off timer1 and reset TMR1 to 0
+//     TMR1          = 0;
+//     T1CONbits.TON = 1;
+//     // Enable Timer1 Interrupt
+//     IEC0bits.T1IE = 1;
     
     
-}
+// }
 
 void _ISR _ADC1Interrupt(void)
 {
-    LATBbits.LATB8 = 1;
+    LATBbits.LATB8 = ~LATBbits.LATB8;
 
-    // Disable ADC Interrupt and lower interrupt flag
-    IEC0bits.AD1IE = 0;
+    digitalRatio_g = ADC1BUF0;
+    for(int i = 0; i < 10000; i++);
+    char  disp_value[9];
+
+    sprintf(disp_value, "%d", digitalRatio_g);
+    // Clear terminal window
+    XmitUART2(0x1b,1); //ESC   
+    XmitUART2('[', 1);
+    XmitUART2('H', 1);
+    Disp2String("                                        ");
+
+    // Print to terminal window
+    XmitUART2(0x1b,1); //ESC   
+    XmitUART2('[', 1);
+    XmitUART2('H', 1);
+    Disp2String(disp_value);
     IFS0bits.AD1IF = 0;
-    
-    AD1CON1bits.SAMP = 0;
-    digitalRatio_g   = ADC1BUF0;
-    AD1CON1bits.ADON = 0;
 
-    // Enable ADC interrupts
-    IEC0bits.AD1IE = 1;
 }
 
 int main(void)
@@ -88,7 +96,14 @@ int main(void)
     // Forever loop
     while(1)
     {
-        asm("nop");
+//        AD1CON1bits.SAMP=1; //Stop sampling
+//        AD1CON1bits.ADON=1; //Turn off ADC, ADC value stored in ADC1BUF0;
+//        
+//        while(AD1CON1bits.DONE==0){};
+//        digitalRatio_g = ADC1BUF0; // ADC output is stored in ADC1BUF0 as this point
+//        AD1CON1bits.SAMP=0; //Stop sampling
+//        AD1CON1bits.ADON=0; //Turn off ADC, ADC value stored in ADC1BUF0;
+//        
 //        sprintf(disp_value, "%d", digitalRatio_g);
 //        // Clear terminal window
 //        XmitUART2(0x1b,1); //ESC   
@@ -101,10 +116,8 @@ int main(void)
 //        XmitUART2('[', 1);
 //        XmitUART2('H', 1);
 //        Disp2String(disp_value);
-        
-        uart_send(mode_g, digitalRatio_g);
-        // Wait till next interrupt to repeat state logic
-        Idle();
+//        for(int i = 0; i < 50000; i++);
+//        uart_send(mode_g, digitalRatio_g);
     }
     
     return 0;
