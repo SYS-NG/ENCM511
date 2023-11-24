@@ -41,7 +41,7 @@ void _ISR _U2RXInterrupt(void) {
 
 // Timer1 Interrupt Service Routine
 void _ISR _T1Interrupt(void)
-{   LATBbits.LATB8 = 1;
+{   
     // Disable Timer1 Interrupt and lower interrupt flag
     IEC0bits.T1IE = 0;
     IFS0bits.T1IF = 0;
@@ -59,8 +59,9 @@ void _ISR _T1Interrupt(void)
     
 }
 
-void _ISR _ADC1TInterrupt(void)
+void _ISR _ADC1Interrupt(void)
 {
+    LATBbits.LATB8 = 1;
     //Disp2String("UART Interrupt\n\r");
     asm("nop");
     // Disable ADC Interrupt and lower interrupt flag
