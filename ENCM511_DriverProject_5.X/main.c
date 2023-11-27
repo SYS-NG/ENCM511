@@ -5,16 +5,16 @@
  * Created on September 28, 2023, 8:47 AM
  */
 // FOSCSEL
-#pragma config FNOSC = FRCDIV           // Oscillator Select (8 MHz FRC oscillator with divide-by-N (FRCDIV))
-#pragma config IESO = ON                // Internal External Switch Over bit (Internal External Switchover mode enabled (Two-Speed Start-up enabled))
+#pragma config FNOSC = FRCDIV          // Oscillator Select (8 MHz FRC oscillator with divide-by-N (FRCDIV))
+#pragma config IESO  = ON              // Internal External Switch Over bit (Internal External Switchover mode enabled (Two-Speed Start-up enabled))
 
 // FOSC
-#pragma config POSCMOD = NONE           // Primary Oscillator Configuration bits (Primary oscillator disabled)
-#pragma config OSCIOFNC = OFF           // CLKO Enable Configuration bit (CLKO output signal is active on the OSCO pin)
-#pragma config POSCFREQ = HS            // Primary Oscillator Frequency Range Configuration bits (Primary oscillator/external clock input frequency greater than 8 MHz)
-#pragma config SOSCSEL = SOSCHP         // SOSC Power Selection Configuration bits (Secondary oscillator configured for high-power operation)
-#pragma config FCKSM = CSECMD           // Clock Switching and Monitor Selection (Clock switching is enabled, Fail-Safe Clock Monitor is disabled)
-#pragma config ICS = PGx2               // ICD Pin Placement Select bits (PGC2/PGD2 are used for programming and debugging the device)
+#pragma config POSCMOD  = NONE         // Primary Oscillator Configuration bits (Primary oscillator disabled)
+#pragma config OSCIOFNC = ON           // CLKO Enable Configuration bit (CLKO output signal is active on the OSCO pin)
+#pragma config POSCFREQ = HS           // Primary Oscillator Frequency Range Configuration bits (Primary oscillator/external clock input frequency greater than 8 MHz)
+#pragma config SOSCSEL  = SOSCHP       // SOSC Power Selection Configuration bits (Secondary oscillator configured for high-power operation)
+#pragma config FCKSM    = CSECMD       // Clock Switching and Monitor Selection (Clock switching is enabled, Fail-Safe Clock Monitor is disabled)
+#pragma config ICS      = PGx2         // ICD Pin Placement Select bits (PGC2/PGD2 are used for programming and debugging the device)
 
 #include "xc.h"
 #include "io.h"
@@ -22,57 +22,23 @@
 
 
 // GLOBAL
-uint8_t digitalRatio_g = 0;
-char    mode_g         = 'x';
+uint16_t digitalRatio_g = 0;
+char    mode_g         = 'x'; // 'x' = 120, 'd' = 68
 
 // UART Interrupt Service Routine
 void _ISR _U2RXInterrupt(void) {
-
 	IFS1bits.U2RXIF = 0;
-    IEC1bits.U2RXIE = 0;
 
     char received_char = U2RXREG;
     if ( received_char == 'x' || received_char == 'd' ) {
         mode_g = received_char;
     }
-
-    IEC1bits.U2RXIE = 1;
-}
-
-// Timer1 Interrupt Service Routine
-void _ISR _T1Interrupt(void)
-{   
-    // Disable Timer1 Interrupt and lower interrupt flag
-    IEC0bits.T1IE = 0;
-    IFS0bits.T1IF = 0;
-
-    // Turn on ADC
-    AD1CON1bits.ADON = 1;
-    AD1CON1bits.SAMP = 1;
-
-    // Turn off timer1 and reset TMR1 to 0
-    TMR1          = 0;
-    T1CONbits.TON = 1;
-    // Enable Timer1 Interrupt
-    IEC0bits.T1IE = 1;
-    
-    
 }
 
 void _ISR _ADC1Interrupt(void)
 {
-    LATBbits.LATB8 = 1;
-
-    // Disable ADC Interrupt and lower interrupt flag
-    IEC0bits.AD1IE = 0;
     IFS0bits.AD1IF = 0;
-    
-    AD1CON1bits.SAMP = 0;
-    digitalRatio_g   = ADC1BUF0;
-    AD1CON1bits.ADON = 0;
-
-    // Enable ADC interrupts
-    IEC0bits.AD1IE = 1;
+    digitalRatio_g = ADC1BUF0;
 }
 
 int main(void)
@@ -82,29 +48,12 @@ int main(void)
     timerInit();
     InitUART2();
     
-    TRISBbits.TRISB8 = 0;
-    char  disp_value[9];
-    
     // Forever loop
     while(1)
     {
-        asm("nop");
-//        sprintf(disp_value, "%d", digitalRatio_g);
-//        // Clear terminal window
-//        XmitUART2(0x1b,1); //ESC   
-//        XmitUART2('[', 1);
-//        XmitUART2('H', 1);
-//        Disp2String("                                        ");
-//
-//        // Print to terminal window
-//        XmitUART2(0x1b,1); //ESC   
-//        XmitUART2('[', 1);
-//        XmitUART2('H', 1);
-//        Disp2String(disp_value);
-        
         uart_send(mode_g, digitalRatio_g);
         // Wait till next interrupt to repeat state logic
-        Idle();
+        for(uint16_t i = 0; i < 35000; i++);
     }
     
     return 0;

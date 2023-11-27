@@ -11,24 +11,70 @@
 #include "string.h"
 
 #define VSUPPLY 3
-#define BLOCK 254
+#define BLOCK 178
 #define BLANK 32
 
 uint8_t received_char = 0;
 uint8_t RXFlag = 0;
 // extern uint16_t CNflag; // uncomment if CNflag is implemented to break out of the busy wait for new input
 
-
-void uart_send(char mode, uint8_t ADC_out)
+// Displays 16 bit number in Hex form using UART2
+void Disp2Hex(unsigned int DispData)
 {
-    float voltage = 3 * (float)ADC_out / 1023;
-    char  disp_bar[31];
+    char i;
+    char nib = 0x00;
+    XmitUART2(' ',1); // Disp Gap
+    XmitUART2('0',1); // Disp Hex notation 0x
+    XmitUART2('x',1);
+
+    for (i=3; i>=0; i--)
+    {
+        nib = ((DispData >> (4*i)) & 0x000F);
+        if (nib >= 0x0A)
+        {
+            nib = nib +0x37; //For Hex values A-F
+        }
+        else
+        {
+            nib = nib+0x30; //For hex values 0-9
+        }
+        XmitUART2(nib,1);
+    }
+
+    XmitUART2(' ',1);
+    DispData = 0x0000; // Clear DispData
+    return;
+}
+
+// Displays 16 bit unsigned in in decimal form
+void Disp2Dec(uint16_t Dec_num)
+{
+    uint8_t rem; //remainder in div by 10
+    uint16_t quot;
+    uint8_t ctr = 0; //counter
+    XmitUART2(' ',1); // Disp Gap
+    while(ctr<5)
+    {
+        quot = Dec_num/(pow(10,(4-ctr)));
+        rem = quot%10;
+        XmitUART2(rem + 0x30 , 1);
+        ctr = ctr + 1;
+    }
+    XmitUART2(' ',1); // Disp Gap
+    return;
+}
+
+void uart_send(char mode, uint16_t ADC_out)
+{
+    float voltage = VSUPPLY * (float) ADC_out / 1023;
+    char  disp_bar[32];
     char  disp_value[9];
 
-    for(int i = 0; i < 30; i++)
-    {
+    disp_bar[0] = '|';
 
-        if (voltage < ((i + 1) * VSUPPLY / 30))
+    for(int i = 1; i < 31; i++)
+    {
+        if (voltage < ((i + 1) * (float) VSUPPLY / 30))
         {
             disp_bar[i] = BLANK;
         }
@@ -36,12 +82,11 @@ void uart_send(char mode, uint8_t ADC_out)
         {
             disp_bar[i] = BLOCK;
         }
-
     }
 
-    disp_bar[30] = '\0';
+    disp_bar[30] = '|';
+    disp_bar[31] = '\0';
 
-    sprintf(disp_value, " %5.3f V", voltage);
 
     disp_value[9] = '\0';
 
@@ -49,14 +94,19 @@ void uart_send(char mode, uint8_t ADC_out)
     XmitUART2(0x1b,1); //ESC   
     XmitUART2('[', 1);
     XmitUART2('H', 1);
-    Disp2String("                                        ");
+    Disp2String("                                                    ");
 
     // Print to terminal window
     XmitUART2(0x1b,1); //ESC   
     XmitUART2('[', 1);
     XmitUART2('H', 1);
     Disp2String(disp_bar);
-    Disp2String(disp_value);
+    if (mode == 'd') {
+        Disp2Dec(ADC_out); 
+    } else if (mode == 'x') {
+        Disp2Hex(ADC_out);
+    }
+    Disp2String("ADC Output");
 }
 
 
@@ -66,11 +116,11 @@ void InitUART2(void)
 	// Enables UART2 
     
     // TARGET: 4800 baud @ 500 kHz  FOSC
-    
+
 	U2MODEbits.USIDL = 0;	// Bit13 Continue in Idle
 	U2MODEbits.IREN = 0;	// Bit12 No IR translation
 	U2MODEbits.RTSMD = 0;	// Bit11 Flow Control Mode Mode
-	U2MODEbits.UEN = 00;    // Bits8,9 TX,RX enabled, CTS,RTS not
+	U2MODEbits.UEN = 00;		// Bits8,9 TX,RX enabled, CTS,RTS not
 	U2MODEbits.WAKE = 0;	// Bit7 No Wake up (since we don't sleep here)
 	U2MODEbits.LPBACK = 0;	// Bit6 No Loop Back
 	U2MODEbits.ABAUD = 0;	// Bit5 No Autobaud (would require sending '55')
@@ -81,7 +131,6 @@ void InitUART2(void)
     
     U2BRG = 12; //gives a baud rate of 4807.7 Baud with 500kHz clock; Set Baud to 4800 on realterm
  
-
     U2STAbits.UTXISEL1 = 0;	//Bit15 Int when Char is transferred (1/2 config!)
     U2STAbits.UTXISEL0 = 1;	//Generate interrupt with last character shifted out of U2TXREG buffer
 	U2STAbits.UTXINV = 0;	//Bit14 N/A, IRDA config
@@ -97,7 +146,6 @@ void InitUART2(void)
 //	U2STAbits.OERR = 0;		//Bit1 *Read Only Bit*
 //	U2STAbits.URXDA = 0;	//Bit0 *Read Only Bit*
 
-	
     IFS1bits.U2TXIF = 0;	// Clear the Transmit Interrupt Flag
     IPC7bits.U2TXIP = 3; // UART2 TX interrupt has interrupt priority 3-4th highest priority
     
@@ -107,11 +155,9 @@ void InitUART2(void)
     IEC1bits.U2RXIE = 1;	// Enable Recieve Interrupts
 
 	U2MODEbits.UARTEN = 1;	// And turn the peripheral on
-    
-    //	U2STAbits.UTXEN = 1;
-
+    AD1PCFGbits.PCFG3 = 1; 
+//	U2STAbits.UTXEN = 1;
 }
-
 
 void Disp2String(char *str) //Displays String of characters
 {
