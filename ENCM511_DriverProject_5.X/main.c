@@ -22,6 +22,7 @@
 
 
 // GLOBAL
+uint8_t ADCFlag = 0;
 uint16_t digitalRatio_g = 0;
 char    mode_g         = 'x'; // 'x' = 120, 'd' = 68
 
@@ -39,6 +40,35 @@ void _ISR _ADC1Interrupt(void)
 {
     IFS0bits.AD1IF = 0;
     digitalRatio_g = ADC1BUF0;
+    
+    ADCFlag = 1;
+
+    // Turn on timer1 and reset TMR1 to 0
+    T1CONbits.TON = 1;
+    TMR1          = 0;
+    
+}
+
+// Timer1 Interrupt Service Routine
+void _ISR _T1Interrupt(void)
+{   
+    //Disp2String("T1 Interrupt\n\r");
+    asm("nop");
+    
+    // Disable Timer1 Interrupt and lower interrupt flag
+    IEC0bits.T1IE = 0;
+    IFS0bits.T1IF = 0;
+    
+    AD1CON1bits.ADON = 1;
+    AD1CON1bits.SAMP = 1;
+    
+    // Turn off timer1 and reset TMR1 to 0
+    T1CONbits.TON = 0;
+    TMR1          = 0;
+    
+    // Enable Timer1 Interrupt
+    IEC0bits.T1IE = 1;
+    
 }
 
 int main(void)
@@ -48,12 +78,16 @@ int main(void)
     timerInit();
     InitUART2();
     
+    TRISBbits.TRISB8 = 0;
+    
     // Forever loop
     while(1)
     {
         uart_send(mode_g, digitalRatio_g);
-        // Wait till next interrupt to repeat state logic
-        for(uint16_t i = 0; i < 35000; i++);
+        
+        // Wait till next ADC read before sending next UART message
+        ADCFlag = 0;
+        while(!(ADCFlag));
     }
     
     return 0;

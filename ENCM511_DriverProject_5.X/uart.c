@@ -91,10 +91,10 @@ void uart_send(char mode, uint16_t ADC_out)
     disp_value[9] = '\0';
 
     // Clear terminal window
-    XmitUART2(0x1b,1); //ESC   
-    XmitUART2('[', 1);
-    XmitUART2('H', 1);
-    Disp2String("                                                    ");
+    //XmitUART2(0x1b,1); //ESC   
+    //XmitUART2('[', 1);
+    //XmitUART2('H', 1);
+    //Disp2String("                                                    ");
 
     // Print to terminal window
     XmitUART2(0x1b,1); //ESC   

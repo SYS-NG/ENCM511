@@ -18,7 +18,7 @@ void IOinit()
 
     // Configurations
     AD1CON1bits.FORM   = 0b00; //Setting data
-    AD1CON1bits.ASAM   = 1; //Sampling begins automatically
+    AD1CON1bits.ASAM   = 0; //Sampling begins when SAMP bit is set
     AD1CON1bits.SSRC   = 0b111; //Internal cou
     AD1CON1bits.ADSIDL = 0; //operate ADC in
     AD1CON1bits.DONE   = 0; //clear conversion
@@ -27,20 +27,21 @@ void IOinit()
     AD1CON2bits.CSCNA  = 0; //Do not scan the
     AD1CON2bits.BUFM   = 0; //Bugger configure
     AD1CON2bits.ALTS   = 0; //Always use MUX A
-    AD1CON2bits.OFFCAL = 0; //converts actua
+    AD1CON2bits.OFFCAL = 0; //converts actual
     
-    AD1CON3bits.ADRC = 0; // Use system cloc
+    AD1CON3bits.ADRC = 0; // Use system clock
     AD1CON3bits.SAMC = 0b11111; //Setting to
-    AD1CON3bits.ADCS = 0b111111;
+    AD1CON3bits.ADCS = 0b0; //A/D Conversion clock set to 2Tcy
 
     // Interrupts
-    IPC3bits.AD1IP   = 2; //set interrupt prioity
+    IPC3bits.AD1IP   = 2; //set interrupt priority
     IEC0bits.AD1IE   = 1; //enable ADC interrupt
 
     // Channels
     AD1CHSbits.CH0NA = 0;      //Channel 0 negative
     AD1CHSbits.CH0SA = 0b0101; //channel 
     AD1CHSbits.CH0SB = 0b0101; //channel 
-    // Turn on ADC 
-    AD1CON1bits.ADON = 1;
+    
+    // Turn off ADC 
+    AD1CON1bits.ADON = 0;
 }
