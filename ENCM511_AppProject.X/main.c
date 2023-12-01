@@ -29,7 +29,7 @@
 #define ARR_SIZE    4
 #define MAX_PRINT   79
 #define T2_5S       4883
-#define T2_ADC      20
+#define T2_ADC      10
 
 #define AUTH1_PR1   4000 
 #define AUTH2_PR1   2000
@@ -667,21 +667,8 @@ int main(void)
         if (state_g == GAME) {
             send_line("State 12");
             setInitialCondition(ON, T2_ADC, ON, ON);
-            while (!state_changed_g)
-            {
-                // GAME LOGIC
-                Idle();
-                game();
-                if ( PB_pressed_g == 0b010 )
-                {
-                    state_g         = MENU;
-                    state_changed_g = 1;
-                }
-                // Wait till timer2 is done to start ADC again
-                while ( !timer2_done_g );
-                AD1CON1bits.ADON = 1;
-                AD1CON1bits.SAMP = 1;
-            }
+            game();
+            state_g         = MENU;
         }
 
         // 13
@@ -708,6 +695,7 @@ int main(void)
 
 void game()
 {
+    
     uint8_t user_select = 0;
     uint8_t GAME_ON = 1;
     uint8_t level = 1;
@@ -717,30 +705,32 @@ void game()
     
     send_line("Ready? Let's go!");
     
+    timer1_done_g = 0;
     delay_ms(5000);
     while(!timer1_done_g);
     timer1_done_g = 0;
-    
+
     while(GAME_ON)
     {
         
         send_line("Repeat this sequence!");
         
-        delay_ms(3000);
+        delay_ms(2000);
         while(!timer1_done_g);
         timer1_done_g = 0;
         
         for(int i = 0; i < level; i++)
         {
-            printBar(i);
+
+            printBar(target[i]);
             
-            delay_ms(1000);
+            delay_ms(3500);
             while(!timer1_done_g);
             timer1_done_g = 0;
             
             printBar(0);
             
-            delay_ms(100);
+            delay_ms(200);
             while(!timer1_done_g);
             timer1_done_g = 0;
         }
@@ -767,50 +757,51 @@ void game()
         
         for(int i = 0; i < level; i++)
         {
-            
-            delay_ms(1000);
+            timer1_done_g = 0;
+            delay_ms(3500);
             
             while(!timer1_done_g)
             {
-                if(adc_value_g <= 3)
+                if (timer2_done_g)
                 {
-                    user_select = 1;
-                    printBar(user_select);
+                    AD1CON1bits.ADON = 1;
+                    AD1CON1bits.SAMP = 1;
                 }
-                else if(adc_value_g <= 6)
+                if(adc_value_g < 3)
+                {
+                    user_select = 3;
+                }
+                else if(adc_value_g < 6)
                 {
                     user_select = 2;
-                    printBar(user_select);
                 }
                 else
                 {
-                    user_select = 3;
-                    printBar(user_select);
+                    user_select = 1;
                 }
+                printBar(user_select);
             }
             
             timer1_done_g = 0;
             
             printBar(0);
             
-            delay_ms(100);
+            delay_ms(200);
             while(!timer1_done_g);
             timer1_done_g = 0;
             
             if(user_select != target[i])
             {
                 GAME_ON = 0;
-                
                 break;
             }
-            
         }
         
         if(GAME_ON != 0)
         {
             send_line("Good job! Next level...");
             
-            delay_ms(3000);
+            delay_ms(3500);
             while(!timer1_done_g);
             timer1_done_g = 0;
             
@@ -818,17 +809,22 @@ void game()
             
             level += 1;
         }
-        
     }
     
     char buf[20];
     
     snprintf(buf, 20, "Game over! Score: %d", (level - 1));
+    send_line(buf);
     
+    timer1_done_g = 0;
     delay_ms(5000);
     while(!timer1_done_g);
     timer1_done_g = 0;
     
-    send_line("Press PB2 to return to MENU");
+    send_line("Returning to MENU");
     
+    timer1_done_g = 0;
+    delay_ms(2319);
+    while(!timer1_done_g);
+    timer1_done_g = 0;
 }
