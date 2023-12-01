@@ -21,12 +21,32 @@
 #include "io.h"
 #include "uart.h"
 
+// Global
+int8_t  char_count_g  = -1;
+char    char_buf_g[4];
+uint8_t blink_count_g = 0;
+uint8_t adc_value_g   = 0;
+uint8_t PB1_pressed_g = 0;
+uint8_t PB2_pressed_g = 0;
+uint8_t PB3_pressed_g = 0;
+uint8_t disp_timer_g  = 1; // Timer 2
+enum    States { LOCK,
+                 AUTH1,
+                 AUTH2, 
+                 AUTH3,
+                 ERR_PASS, 
+                 UNLOCK, 
+                 DISP_LOCK, 
+                 CHNG_CHAR,
+                 CHNG_NUM,
+                 DISP_CHNG,
+                 MENU,
+                 CHNG_CLK,
+                 GAME,
+                 DISP_IDLE,
+               };
 
-// GLOBAL
-uint8_t ADCFlag = 0;            // Used to indicate when an ADC conversion has completed
-uint16_t digitalRatio_g = 0;    // Global variable to store the digital DAC output
-char    mode_g         = 'x';   // Indicates hex vs decimal, 'x' = 120, 'd' = 68
-
+enum States state_g = LOCK; 
 
 // UART Interrupt Service Routine
 void _ISR _U2RXInterrupt(void)
