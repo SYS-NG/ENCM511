@@ -48,17 +48,38 @@ void timerInit()
     OSCCONbits.OSWEN = 1;
     while (OSCCONbits.OSWEN == 1);
     
-    // Set 1:64 prescaler 
-    T1CONbits.TCKPS = 0b10;
-    
     // Set CPU interrupt priority to 0
     SRbits.IPL = 0;
     
-    IEC0bits.T1IE = 1;  // Enable Timer1 Interrupt
-    IFS0bits.T1IF = 0;  // Lower Timer1 Interrupt Status Flag
-    PR1           = 120; // Approx 30 ms timer 1 cycle
+    // Timer1 configuration
+    T1CONbits.TON = 0; // Turn timer off to start
+    T1CONbits.TSIDL = 0; // Continue timer operation in idle
+    T1CONbits.TCKPS = 0b10; // Set 1:64 prescaler
+    T1CONbits.TCS = 0; // Set Timer1 clock source to internal clock
+    IFS0bits.T1IF = 0;  // Lower Timer1 interrupt status flag
+    IEC0bits.T1IE = 1;  // Enable Timer1 interrupt
+    PR1           = 1953; // Approx 0.5s Timer1 cycle
     TMR1          = 0;  // Set TMR1 to 0
     
-    T1CONbits.TON = 1;  // Turn on timer1
+    // Timer2 configuration
+    T2CONbits.T32 = 0; // Timer2 and Timer 3 act as two 16-bit timers
+    T2CONbits.TON = 0; // Turn timer off to start
+    T2CONbits.TSIDL = 0; // Continue timer operation in idle
+    T2CONbits.TCKPS = 0b11; // Set 1:256 prescaler
+    T2CONbits.TCS = 0; // Set Timer2 clock source to internal clock
+    IFS0bits.T2IF = 0;  // Lower Timer2 interrupt status flag
+    IEC0bits.T2IE = 1;  // Enable Timer2 interrupt
+    PR2           = 4883; // Approx 5s Timer2 cycle
+    TMR2          = 0;  // Set TMR2 to 0
+
+    // Timer3 configuration
+    T3CONbits.TON = 0; // Turn timer off to start
+    T3CONbits.TSIDL = 0; // Continue timer operation in idle
+    T3CONbits.TCKPS = 0b11; // Set 1:8 prescaler
+    T3CONbits.TCS = 0; // Set Timer3 clock source to internal clock
+    IFS0bits.T3IF = 0;  // Lower Timer3 interrupt status flag
+    IEC0bits.T3IE = 1;  // Enable Timer3 interrupt
+    PR3           = 625; // Approx 20ms Timer3 cycle
+    TMR3          = 0;  // Set TMR3 to 0
     
 }
