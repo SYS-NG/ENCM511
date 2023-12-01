@@ -27,7 +27,7 @@
 #define ON          1
 #define OFF         0
 #define ARR_SIZE    4
-#define MAX_PRINT   100
+#define MAX_PRINT   79
 #define T2_5S       4883
 #define T2_ADC      20
 
@@ -347,8 +347,8 @@ void send_line(char* str)
 
 void printBar(uint8_t range)
 {
-    char buffer[90];
-    int  buf_cnt = 57;
+    char buffer[MAX_PRINT];
+    int  buf_cnt = 59;
 
     if ( range == 1 )
     {
@@ -368,6 +368,7 @@ void printBar(uint8_t range)
     {
         snprintf(buffer, buf_cnt,"|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|", BIGBLANK, BIGBLANK, BIGBLANK);
     }
+    buffer[buf_cnt] = '\0';
 
     send_line(buffer);
 }
@@ -383,6 +384,9 @@ int main(void)
         // 0
         if (state_g == LOCK) {
             send_line("State 0");
+            // char buf[4];
+            // sprintf(buf, "%d", (rand() % 3) + 1);
+            // send_line(buf);
             setInitialCondition(OFF, OFF, OFF, OFF);
             while (!state_changed_g)
             {
@@ -702,7 +706,6 @@ int main(void)
 
 void game()
 {
-    
     uint8_t user_select = 0;
     uint8_t GAME_ON = 1;
     uint8_t level = 1;
