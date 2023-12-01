@@ -74,6 +74,7 @@ enum    States { LOCK,
                };
 enum States state_g = LOCK; // Initial State
 
+void game();
 // UART Interrupt Service Routine
 void _ISR _U2RXInterrupt(void)
 {
@@ -347,24 +348,25 @@ void send_line(char* str)
 void printBar(uint8_t range)
 {
     char buffer[90];
+    int  buf_cnt = 57;
 
     if ( range == 1 )
     {
-        snprintf(buffer, 59,"|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|", BIGBLOCK, BIGWHITE, BIGWHITE);
+        snprintf(buffer, buf_cnt,"|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|", BIGBLOCK, BIGWHITE, BIGWHITE);
     }
     else if ( range == 2 )
     {
-        snprintf(buffer, 59,"|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|", BIGWHITE, BIGBLOCK, BIGWHITE);
+        snprintf(buffer, buf_cnt,"|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|", BIGWHITE, BIGBLOCK, BIGWHITE);
 
     }
     else if ( range == 3)
     {
-        snprintf(buffer, 59,"|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|", BIGWHITE, BIGWHITE, BIGBLOCK);
+        snprintf(buffer, buf_cnt,"|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|", BIGWHITE, BIGWHITE, BIGBLOCK);
 
     }
     else
     {
-        snprintf(buffer, 59,"|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|", BIGBLANK, BIGBLANK, BIGBLANK);
+        snprintf(buffer, buf_cnt,"|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|", BIGBLANK, BIGBLANK, BIGBLANK);
     }
 
     send_line(buffer);
@@ -381,7 +383,6 @@ int main(void)
         // 0
         if (state_g == LOCK) {
             send_line("State 0");
-            printBar(0);
             setInitialCondition(OFF, OFF, OFF, OFF);
             while (!state_changed_g)
             {
@@ -659,11 +660,12 @@ int main(void)
         // 12
         if (state_g == GAME) {
             send_line("State 12");
-            setInitialCondition(OFF, T2_ADC, ON, ON);
+            setInitialCondition(ON, T2_ADC, ON, ON);
             while (!state_changed_g)
             {
                 // GAME LOGIC
                 Idle();
+                game();
                 if ( PB_pressed_g == 0b010 )
                 {
                     state_g         = MENU;
