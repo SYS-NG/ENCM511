@@ -9,14 +9,6 @@
 #include "UART.h"
 #include "string.h"
 
-#define VSUPPLY 3
-#define BLOCK 178
-#define BLANK 32
-
-
-// GLOBAL
-uint8_t received_char = 0;
-uint8_t RXFlag = 0;
 
 
 void InitUART2(void) 
@@ -44,7 +36,7 @@ void InitUART2(void)
     U2STAbits.UTXISEL0 = 1;	// Generate interrupt with last character shifted out of U2TXREG buffer
 	U2STAbits.UTXINV = 0;	// Bit14 N/A, IRDA config
 	U2STAbits.UTXBRK = 0;	// Bit11 Disabled
-	U2STAbits.UTXEN = 0;	// Bit10 TX pins controlled by periph
+	U2STAbits.UTXEN = 0;	// Bit10 TX pins controlled by peripheral
 //	U2STAbits.UTXBF = 0;	// Bit9 *Read Only Bit*
 //	U2STAbits.TRMT = 0;		// Bit8 *Read Only bit*
 	U2STAbits.URXISEL = 0;	// Bits6,7 Int. on character recieved
@@ -68,6 +60,7 @@ void InitUART2(void)
     AD1PCFGbits.PCFG3 = 1;  // Set AN3 to digital since this will be used for U2RX
 
 }
+
 
 
 // Send digitally coded ADC output to UART2
