@@ -61,8 +61,6 @@ void InitUART2(void)
 
 }
 
-
-
 // Transmits String of characters to UART
 void Disp2String(char *str)
 {
