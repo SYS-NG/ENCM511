@@ -17,6 +17,7 @@
 #pragma config FCKSM    = CSECMD       // Clock Switching and Monitor Selection (Clock switching is enabled, Fail-Safe Clock Monitor is disabled)
 #pragma config ICS      = PGx2         // ICD Pin Placement Select bits (PGC2/PGD2 are used for programming and debugging the device)
 
+#include <stdlib.h>
 #include "xc.h"
 #include "io.h"
 #include "uart.h"
@@ -663,3 +664,118 @@ int main(void)
     return 0;
 }
 
+
+void game()
+{
+    
+    uint8_t user_select = 0;
+    uint8_t GAME_ON = 1;
+    uint8_t level = 1;
+    uint8_t target[100];
+    
+    target[0] = (rand() % 3) + 1;
+    
+    send_line("Ready? Let's go!");
+    
+    delay_ms(5000);
+    while(!timer1_done_g);
+    
+    while(GAME_ON)
+    {
+        
+        send_line("Repeat this sequence!");
+        
+        delay_ms(3000);
+        while(!timer1_done_g);
+        
+        for(int i = 0; i < level; i++)
+        {
+            printBar(i);
+            
+            delay_ms(1000);
+            while(!timer1_done_g);
+            
+            printBar(0);
+            
+            delay_ms(100);
+            while(!timer1_done_g);
+        }
+        
+        send_line("Your turn!");
+        delay_ms(3000);
+        while(!timer1_done_g);
+        
+        send_line("3...");
+        delay_ms(500);
+        while(!timer1_done_g);
+        
+        send_line("2...");
+        delay_ms(500);
+        while(!timer1_done_g);
+        
+        send_line("1...");
+        delay_ms(500);
+        while(!timer1_done_g);
+        
+        for(int i = 0; i < level; i++)
+        {
+            
+            delay_ms(1000);
+            
+            while(!timer1_done_g)
+            {
+                if(adc_value_g <= 3)
+                {
+                    user_select = 1;
+                    printBar(user_select);
+                }
+                else if(adc_value_g <= 6)
+                {
+                    user_select = 2;
+                    printBar(user_select);
+                }
+                else
+                {
+                    user_select = 3;
+                    printBar(user_select);
+                }
+            }
+            
+            printBar(0);
+            
+            delay_ms(100);
+            while(!timer1_done_g);
+            
+            if(user_select != target[i])
+            {
+                GAME_ON = 0;
+                
+                break;
+            }
+            
+        }
+        
+        if(GAME_ON != 0)
+        {
+            send_line("Good job! Next level...");
+            
+            delay_ms(3000);
+            while(!timer1_done_g);
+            
+            target[level] = (rand() % 3) + 1;
+            
+            level += 1;
+        }
+        
+    }
+    
+    char buf[20];
+    
+    snprintf(buf, 20, "Game over! Score: %d", (level - 1));
+    
+    delay_ms(5000);
+    while(!timer1_done_g);
+    
+    send_line("Press PB2 to return to MENU");
+    
+}

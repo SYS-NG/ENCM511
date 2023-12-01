@@ -36,6 +36,16 @@ void setTimer(uint16_t timer) {
     SRbits.IPL = 0;
 }
 
+void delay_ms(uint16_t n)
+{
+    
+    // Calculate PR1 based on specified number of milliseconds
+    PR1 = (int) (((float) n / 1000) / ((float) 1 / 3906));
+    TMR1          = 0;  // Set TMR1 to 0
+    T1CONbits.TON = 1; // Turn timer off to start
+    
+}
+
 void timerInit()
 {
     
