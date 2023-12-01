@@ -679,6 +679,7 @@ void game()
     
     delay_ms(5000);
     while(!timer1_done_g);
+    timer1_done_g = 0;
     
     while(GAME_ON)
     {
@@ -687,6 +688,7 @@ void game()
         
         delay_ms(3000);
         while(!timer1_done_g);
+        timer1_done_g = 0;
         
         for(int i = 0; i < level; i++)
         {
@@ -694,28 +696,34 @@ void game()
             
             delay_ms(1000);
             while(!timer1_done_g);
+            timer1_done_g = 0;
             
             printBar(0);
             
             delay_ms(100);
             while(!timer1_done_g);
+            timer1_done_g = 0;
         }
         
         send_line("Your turn!");
         delay_ms(3000);
         while(!timer1_done_g);
+        timer1_done_g = 0;
         
         send_line("3...");
         delay_ms(500);
         while(!timer1_done_g);
+        timer1_done_g = 0;
         
         send_line("2...");
         delay_ms(500);
         while(!timer1_done_g);
+        timer1_done_g = 0;
         
         send_line("1...");
         delay_ms(500);
         while(!timer1_done_g);
+        timer1_done_g = 0;
         
         for(int i = 0; i < level; i++)
         {
@@ -741,10 +749,13 @@ void game()
                 }
             }
             
+            timer1_done_g = 0;
+            
             printBar(0);
             
             delay_ms(100);
             while(!timer1_done_g);
+            timer1_done_g = 0;
             
             if(user_select != target[i])
             {
@@ -761,6 +772,7 @@ void game()
             
             delay_ms(3000);
             while(!timer1_done_g);
+            timer1_done_g = 0;
             
             target[level] = (rand() % 3) + 1;
             
@@ -775,6 +787,7 @@ void game()
     
     delay_ms(5000);
     while(!timer1_done_g);
+    timer1_done_g = 0;
     
     send_line("Press PB2 to return to MENU");
     
