@@ -169,16 +169,18 @@ void _ISR _T1Interrupt(void)
     // Turn off Timer1
     T1CONbits.TON = 0;
     
+    timer1_done_g = 1;
+    
     // Toggle LED and increment counter
-    if (state_g != GAME) {
+    if (state_g != GAME)
+    {
         LATBbits.LATB8 = ~LATBbits.LATB8;
         blink_count_g += 1;
+        
+        // Reset TMR1 to 0 and turn on Timer1
+        TMR1          = 0;
+        T1CONbits.TON = 1;
     }
-
-    timer1_done_g = 1;
-    // Reset TMR1 to 0 and turn on Timer1
-    TMR1          = 0;
-    T1CONbits.TON = 1;
     
     // Enable Timer1 Interrupt
     IEC0bits.T1IE = 1;
