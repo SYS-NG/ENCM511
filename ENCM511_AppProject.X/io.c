@@ -232,14 +232,13 @@ void IOinit()
     AD1CON3bits.SAMC = 0b11111;   // Set auto-sample time to 31Tad
     AD1CON3bits.ADCS = 0b0;       // A/D Conversion clock set to 2Tcy
 
-    // Interrupts
+    // ADC interrupts
     IPC3bits.AD1IP   = 2;   // Set AD1 interrupt priority
     IEC0bits.AD1IE   = 1;   // Enable AD1 interrupt
 
     // Channels
     AD1CHSbits.CH0NA = 0;        // Channel 0 negative input is Vref-
     AD1CHSbits.CH0SA = 0b0101;   // Channel 0 positive input is AN5
-    AD1CHSbits.CH0SB = 0b0101;   // Channel B positive input is AN5
     
     // Turn off ADC 
     AD1CON1bits.ADON = 0;
