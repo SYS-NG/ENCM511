@@ -7,6 +7,33 @@
 
 #include "xc.h"
 
+void setTimer(uint8_t timer) {
+
+    if ( (timer != 500) && (timer != 8) ) return;
+
+    // Set CPU interrupt priority to 7 (disable user interrupt))
+    SRbits.IPL = 7;
+    
+    // Switch clock to 500 kHz
+    CLKDIVbits.RCDIV = 0;
+    if ( timer == 500)
+    {
+        __builtin_write_OSCCONH(0x66);
+    }
+    else
+    {
+        __builtin_write_OSCCONH(0x77);
+    }
+    __builtin_write_OSCCONL(0x01);
+    OSCCONbits.OSWEN = 1;
+    while (OSCCONbits.OSWEN == 1);
+    
+    // Set 1:64 prescaler 
+    T1CONbits.TCKPS = 0b10;
+    
+    // Set CPU interrupt priority to 0
+    SRbits.IPL = 0;
+}
 
 void timerInit()
 {
