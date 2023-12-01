@@ -97,8 +97,6 @@ void Disp2String(char *str)
     
 }
 
-
-
 void __attribute__ ((interrupt, no_auto_psv)) _U2TXInterrupt(void) {
 	IFS1bits.U2TXIF = 0;
 }

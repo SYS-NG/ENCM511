@@ -35,6 +35,14 @@
 #define AUTH2_PR1   2000
 #define AUTH3_PR1   1000
 
+#define WHITE       176
+#define BLOCK       178
+#define BLANK       32
+
+#define BIGWHITE    WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE
+#define BIGBLOCK    BLOCK, BLOCK, BLOCK, BLOCK, BLOCK, BLOCK, BLOCK, BLOCK, BLOCK, BLOCK, BLOCK, BLOCK, BLOCK, BLOCK, BLOCK, BLOCK, BLOCK, BLOCK
+#define BIGBLANK    BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK 
+
 // Global
 char    char_buf_g[ARR_SIZE];
 int8_t  char_count_g    = -1;
@@ -148,8 +156,6 @@ void _ISR _ADC1Interrupt(void)
     // Disp2String(buf);
     
 }
-
-
 
 // Timer1 Interrupt Service Routine
 void _ISR _T1Interrupt(void)
@@ -338,6 +344,32 @@ void send_line(char* str)
     Disp2String(buffer);
 }
 
+void printBar(uint8_t range)
+{
+    char buffer[90];
+
+    if ( range == 1 )
+    {
+        snprintf(buffer, 59,"|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|", BIGBLOCK, BIGWHITE, BIGWHITE);
+    }
+    else if ( range == 2 )
+    {
+        snprintf(buffer, 59,"|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|", BIGWHITE, BIGBLOCK, BIGWHITE);
+
+    }
+    else if ( range == 3)
+    {
+        snprintf(buffer, 59,"|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|", BIGWHITE, BIGWHITE, BIGBLOCK);
+
+    }
+    else
+    {
+        snprintf(buffer, 59,"|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|", BIGBLANK, BIGBLANK, BIGBLANK);
+    }
+
+    send_line(buffer);
+}
+
 int main(void)
 {
     // Configure I/O, timers, and UART2
@@ -349,6 +381,7 @@ int main(void)
         // 0
         if (state_g == LOCK) {
             send_line("State 0");
+            printBar(0);
             setInitialCondition(OFF, OFF, OFF, OFF);
             while (!state_changed_g)
             {
