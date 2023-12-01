@@ -33,7 +33,7 @@
 
 #include <xc.h> // include processor files - each processor file is guarded.  
 
-void setTimer(uint8_t timer); 
+void setTimer(uint16_t timer); 
 void timerInit();
 void delay_ms(uint16_t time_ms);
 

@@ -27,22 +27,25 @@
 #define OFF         0
 #define ARR_SIZE    4
 #define MAX_PRINT   100
+#define T2_5S       4883
+#define T2_ADC      20
 
 #define AUTH1_PR1   4000 
 #define AUTH2_PR1   2000
 #define AUTH3_PR1   1000
 
 // Global
+char    char_buf_g[ARR_SIZE];
 int8_t  char_count_g    = -1;
 uint8_t u2_index_g      = 0;
-char    char_buf_g[ARR_SIZE];
 uint8_t blink_count_g   = 0;
 uint8_t adc_value_g     = 0;
 uint8_t PB_pressed_g    = 0b000;
-uint8_t disp_timer_g    = 0; // Timer 2
-char    p1_g            = 'K';
-char    p2_g            = 'M';
-char    p3_g            = 'S';
+uint8_t timer1_done_g   = 0; // Timer 1
+uint8_t timer2_done_g   = 0; // Timer 2
+char    p1_g            = 'i';
+char    p2_g            = 'l';
+char    p3_g            = 'i';
 uint8_t p_num_g         = 2;
 uint8_t state_changed_g = 0;
 enum    States { LOCK,
@@ -65,7 +68,7 @@ enum States state_g = LOCK; // Initial State
 // UART Interrupt Service Routine
 void _ISR _U2RXInterrupt(void)
 {
-	
+    LATBbits.LATB8 = ~LATBbits.LATB8;
     // Disable UART2 Interrupt and lower interrupt flag
     IEC1bits.U2RXIE = 0;
     IFS1bits.U2RXIF = 0;
@@ -75,7 +78,7 @@ void _ISR _U2RXInterrupt(void)
     {
         U2STAbits.OERR = 0;
         u2_index_g = 0;
-        Disp2String("String too long, please try again!");
+        send_line("String too long, please try again!");
     }    
     else if (U2STAbits.URXDA)
     {
@@ -84,7 +87,7 @@ void _ISR _U2RXInterrupt(void)
         
         if(received_char == 0x0D)
         {
-            
+            // Valid Read ONLY here    
             if(u2_index_g >= 0)
             {
                 char_buf_g[u2_index_g] = '\0';
@@ -98,7 +101,7 @@ void _ISR _U2RXInterrupt(void)
         {
             char_count_g = -1;
             u2_index_g = 0;
-            Disp2String("String too long, please try again!");
+            send_line("String too long, please try again!");
         }
         else
         {
@@ -116,30 +119,32 @@ void _ISR _U2RXInterrupt(void)
     
 }
 
-
-
 // ADC1 Interrupt Service Routine
 void _ISR _ADC1Interrupt(void)
 {
-    
     // Disable AD1 Interrupt and lower interrupt flag
-    IEC0bits.AD1IE   = 0;
+    IEC0bits.AD1IE = 0;
     IFS0bits.AD1IF = 0;
     
     // Turn off ADC and stop sampling process
-    AD1CON1bits.ADON = 0;
     AD1CON1bits.SAMP = 0;
     
     // Read digitally coded ADC output from buffer
     // Integer division by 103 gives value from 0-9
     adc_value_g = ADC1BUF0 / 103;
     
+    AD1CON1bits.ADON = 0;
     // Enable AD1 Interrupt
     IEC0bits.AD1IE   = 1;
     
-    // Turn on ADC and start sampling process
-    AD1CON1bits.ADON = 1;
-    AD1CON1bits.SAMP = 1;
+    // // Turn on ADC and start sampling process
+    // AD1CON1bits.ADON = 1;
+    // AD1CON1bits.SAMP = 1;
+
+    // REMOVE 
+    // char buf[4];
+    // sprintf(buf,"%d", adc_value_g);
+    // Disp2String(buf);
     
 }
 
@@ -157,16 +162,18 @@ void _ISR _T1Interrupt(void)
     T1CONbits.TON = 0;
     
     // Toggle LED and increment counter
-    LATBbits.LATB8 = ~LATBbits.LATB8;
-    blink_count_g += 1;
-    
-    // Enable Timer1 Interrupt
-    IEC0bits.T1IE = 1;
-    
+    if (state_g != GAME) {
+        LATBbits.LATB8 = ~LATBbits.LATB8;
+        blink_count_g += 1;
+    }
+
+    timer1_done_g = 1;
     // Reset TMR1 to 0 and turn on Timer1
     TMR1          = 0;
     T1CONbits.TON = 1;
     
+    // Enable Timer1 Interrupt
+    IEC0bits.T1IE = 1;
 }
 
 
@@ -184,7 +191,7 @@ void _ISR _T2Interrupt(void)
     TMR2 = 0;
 
     // Set global display timer flag
-    disp_timer_g = 1;
+    timer2_done_g = 1;
     
     // Enable Timer2 interrupt
     IEC0bits.T2IE = 1;
@@ -236,16 +243,21 @@ void _ISR _CNInterrupt(void)
 }
 
 // Function to set initial state conditions
-void setInitialCondition(uint8_t timer1_val, uint8_t timer2_on, uint8_t cn_on, uint8_t adc_on)
+void setInitialCondition(uint16_t timer1_val, uint16_t timer2_val, uint8_t cn_on, uint8_t adc_on)
 {
-    TMR1 = 0;
-    TMR2 = 0;
-    TMR3 = 0;
-    blink_count_g = 0;
-    PB_pressed_g  = 0b000;
+    TMR1            = 0;
+    TMR2            = 0;
+    TMR3            = 0;
+    blink_count_g   = 0;
+    PB_pressed_g    = 0b000;
+    state_changed_g = 0;
 
-    disp_timer_g = 0;
-    char_count_g = -1;
+    timer1_done_g   = 0;
+    timer2_done_g   = 0;
+    char_count_g    = -1;
+
+    LATBbits.LATB8  = 0;
+
     for (int i = 0; i < ARR_SIZE; i++)
     {
         char_buf_g[i] = '\0';
@@ -261,8 +273,9 @@ void setInitialCondition(uint8_t timer1_val, uint8_t timer2_on, uint8_t cn_on, u
         T1CONbits.TON = 0;  // Turn off timer1
     }
 
-    if ( timer2_on > 0 )
+    if ( timer2_val > 0 )
     {
+        PR2           = timer2_val;
         T2CONbits.TON = 1;  // Turn on timer2
     }
     else
@@ -274,7 +287,7 @@ void setInitialCondition(uint8_t timer1_val, uint8_t timer2_on, uint8_t cn_on, u
     {
         // Enable Input Change Notification Interrupt
         IEC1bits.CNIE = 1;
-        T3CONbits.TON = 1;  // Turn on timer3
+        // T3CONbits.TON = 1;  // Turn on timer3
     }
     else
     {
@@ -283,16 +296,26 @@ void setInitialCondition(uint8_t timer1_val, uint8_t timer2_on, uint8_t cn_on, u
         T3CONbits.TON = 0;  // Turn off timer3
     }
 
+    if ( adc_on > 0 )
+    {
+        AD1CON1bits.ADON = 1;
+        AD1CON1bits.SAMP = 1;
+    }
+    else
+    {
+        AD1CON1bits.ADON = 0;
+        AD1CON1bits.SAMP = 0;
+    }
 }
 
-void do_something_uart(char* str)
+void send_line(char* str)
 {
     uint8_t i           = 0;
     uint8_t reached_eos = 0;
 
     char buffer[MAX_PRINT + 1];
     if ( *str == '\0' ) reached_eos = 1;
-
+    LATBbits.LATB8 = 1;
     while( i < MAX_PRINT )
     {
         if ( reached_eos == 1)
@@ -305,8 +328,12 @@ void do_something_uart(char* str)
             str++;
             if ( *str == '\0' ) reached_eos = 1;
         }
+        i++;
     }
 
+    XmitUART2(0x1b, 1);
+    XmitUART2( '[', 1);
+    XmitUART2( 'H', 1);
     Disp2String(buffer);
 }
 
@@ -320,6 +347,7 @@ int main(void)
     while (1) {
         // 0
         if (state_g == LOCK) {
+            send_line("State 0");
             setInitialCondition(OFF, OFF, OFF, OFF);
             while (!state_changed_g)
             {
@@ -339,6 +367,7 @@ int main(void)
 
         // 1
         if (state_g == AUTH1) {
+            send_line("State 1");
             setInitialCondition(AUTH1_PR1, OFF, OFF, OFF);
             while (!state_changed_g)
             {
@@ -353,7 +382,7 @@ int main(void)
                     state_g         = ERR_PASS;
                     state_changed_g = 1;
                 }
-                else if ( blink_count_g == BLINK_LIMIT )
+                else if ( blink_count_g >= BLINK_LIMIT )
                 {
                     state_g         = ERR_PASS;
                     state_changed_g = 1;
@@ -363,6 +392,7 @@ int main(void)
 
         // 2
         if (state_g == AUTH2) {
+            send_line("State 2");
             setInitialCondition(AUTH2_PR1, OFF, OFF, OFF);
             while (!state_changed_g)
             {
@@ -377,7 +407,7 @@ int main(void)
                     state_g         = ERR_PASS;
                     state_changed_g = 1;
                 }
-                else if ( blink_count_g == BLINK_LIMIT )
+                else if ( blink_count_g >= BLINK_LIMIT )
                 {
                     state_g         = ERR_PASS;
                     state_changed_g = 1;
@@ -387,10 +417,14 @@ int main(void)
 
         // 3
         if (state_g == AUTH3) {
-            setInitialCondition(AUTH3_PR1, OFF, OFF, ON);
+            send_line("State 3");
+            setInitialCondition(AUTH3_PR1, T2_ADC, ON, ON);
             while (!state_changed_g)
             {
                 Idle();
+                char buffer[MAX_PRINT]; 
+                snprintf(buffer, 31, "Select Number and press PB2: %d", adc_value_g);
+                send_line(buffer);
                 if ( (PB_pressed_g == 0b010) && (adc_value_g == p_num_g) )
                 {
                     state_g         = UNLOCK;
@@ -401,16 +435,21 @@ int main(void)
                     state_g         = ERR_PASS;
                     state_changed_g = 1;
                 }
-                else if ( blink_count_g == BLINK_LIMIT )
+                else if ( blink_count_g >= BLINK_LIMIT )
                 {
                     state_g         = ERR_PASS;
                     state_changed_g = 1;
                 }
+                // Wait till timer2 is done to start ADC again
+                while ( !timer2_done_g );
+                AD1CON1bits.ADON = 1;
+                AD1CON1bits.SAMP = 1;
             } 
         }
 
         // 4
         if (state_g == ERR_PASS) {
+            send_line("State 4");
             setInitialCondition(OFF, OFF, ON, OFF);
             while (!state_changed_g)
             {
@@ -425,6 +464,7 @@ int main(void)
 
         // 5
         if (state_g == UNLOCK) {
+            send_line("State 5");
             setInitialCondition(OFF, OFF, ON, OFF);
             while (!state_changed_g)
             {
@@ -449,11 +489,12 @@ int main(void)
 
         // 6
         if (state_g == DISP_LOCK) {
-            setInitialCondition(OFF, ON, OFF, OFF);
+            send_line("State 6");
+            setInitialCondition(OFF, T2_5S, OFF, OFF);
             while (!state_changed_g)
             {
                 Idle();
-                if ( (disp_timer_g == 1) )
+                if ( timer2_done_g == 1 )
                 {
                     state_g         = LOCK;
                     state_changed_g = 1;
@@ -463,7 +504,9 @@ int main(void)
 
         // 7
         if (state_g == CHNG_CHAR) {
+            send_line("State 7");
             setInitialCondition(OFF, OFF, OFF, OFF);
+            send_line("Enter a 3 character password");
             while (!state_changed_g)
             {
                 Idle();
@@ -478,17 +521,24 @@ int main(void)
                 }
                 else if ( (char_count_g > -1)  )
                 {
-                    do_something_uart("Fuck off and try again");
+                    send_line("Please enter 3 character and try again");
+                    for(int i = 0; i < 10000; i++);
+                    char_count_g = -1;
                 }
             } 
         }
 
         // 8
         if (state_g == CHNG_NUM) {
-            setInitialCondition(OFF, OFF, ON, ON);
+            send_line("State 8");
+            LATBbits.LATB9   = 1;
+            setInitialCondition(OFF, T2_ADC, ON, ON);
             while (!state_changed_g)
             {
                 Idle();
+                char buffer[MAX_PRINT]; 
+                snprintf(buffer, 46, "Select a new number password and press PB2: %d", adc_value_g);
+                send_line(buffer);
                 // Potential concern, state change and immediate update num
                 if ( (PB_pressed_g == 0b010) )
                 {
@@ -496,16 +546,21 @@ int main(void)
                     state_g         = DISP_CHNG;
                     state_changed_g = 1;
                 }
+                // Wait till timer2 is done to start ADC again
+                while ( !timer2_done_g );
+                AD1CON1bits.ADON = 1;
+                AD1CON1bits.SAMP = 1;
             } 
         }
 
         // 9
         if (state_g == DISP_CHNG) {
-            setInitialCondition(OFF, ON, OFF, OFF);
+            send_line("State 9");
+            setInitialCondition(OFF, T2_5S, OFF, OFF);
             while (!state_changed_g)
             {
                 Idle();
-                if ( disp_timer_g == 1 )
+                if ( timer2_done_g == 1 )
                 {
                     state_g         = LOCK;
                     state_changed_g = 1;
@@ -515,6 +570,7 @@ int main(void)
 
         // 10
         if (state_g == MENU) {
+            send_line("State 10");
             setInitialCondition(OFF, OFF, ON, OFF);
             while (!state_changed_g)
             {
@@ -544,6 +600,7 @@ int main(void)
 
         // 11
         if (state_g == CHNG_CLK) {
+            send_line("State 11");
             setInitialCondition(OFF, OFF, ON, OFF);
             while (!state_changed_g)
             {
@@ -560,14 +617,15 @@ int main(void)
                 }
                 else if ( PB_pressed_g == 0b001 )  
                 {
-                    setTimer(500);
+                    setTimer(32);
                 }
             }
         }
 
         // 12
         if (state_g == GAME) {
-            setInitialCondition(OFF, OFF, ON, ON);
+            send_line("State 12");
+            setInitialCondition(OFF, T2_ADC, ON, ON);
             while (!state_changed_g)
             {
                 // GAME LOGIC
@@ -577,21 +635,28 @@ int main(void)
                     state_g         = MENU;
                     state_changed_g = 1;
                 }
+                // Wait till timer2 is done to start ADC again
+                while ( !timer2_done_g );
+                AD1CON1bits.ADON = 1;
+                AD1CON1bits.SAMP = 1;
             }
         }
 
         // 13
         if (state_g == DISP_IDLE) {
-            setInitialCondition(OFF, ON, OFF, OFF);
+            send_line("Entering Idle");
+            setInitialCondition(OFF, T2_5S, ON, OFF);
             while (!state_changed_g)
             {
                 Idle();
-                if ( (disp_timer_g == 1) )
+                if ( (timer2_done_g == 1) )
                 {
                     state_g         = LOCK;
                     state_changed_g = 1;
                 }
             }
+            send_line("Idling: Waiting for Keyboard or Button Input");
+            Idle();
         }
     } // while (1)
 

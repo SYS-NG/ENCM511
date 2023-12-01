@@ -10,7 +10,9 @@
 
 void IOinit()
 {
+    INTCON1bits.NSTDIS = 0;
     
+    TRISBbits.TRISB9 = 0;
     // Set up analog input ports
     TRISAbits.TRISA3  = 1;   // Configure AN5 (RA3) as input
     AD1PCFGbits.PCFG5 = 0;   // Configure AN5 as analog
@@ -29,6 +31,7 @@ void IOinit()
     // Enable Input Change Notification Interrupt
     IFS1bits.CNIF = 0;  
     IEC1bits.CNIE = 1;  
+    IPC4bits.CNIP = 7;
 
     // Enable individual interrupt pins
     CNEN2bits.CN30IE = 1;
@@ -56,7 +59,7 @@ void IOinit()
     AD1CON3bits.ADCS = 0b0;       // A/D Conversion clock set to 2Tcy
 
     // ADC interrupts
-    IPC3bits.AD1IP   = 2;   // Set AD1 interrupt priority
+    IPC3bits.AD1IP   = 1;   // Set AD1 interrupt priority
     IEC0bits.AD1IE   = 1;   // Enable AD1 interrupt
 
     // Channels

@@ -48,17 +48,38 @@ void InitUART2(void)
 //	U2STAbits.URXDA = 0;	// Bit0 *Read Only Bit*
 
     IFS1bits.U2TXIF = 0;	// Clear the Transmit Interrupt Flag
-    IPC7bits.U2TXIP = 3;    // UART2 TX interrupt has interrupt priority 3-4th highest priority
+    IPC7bits.U2TXIP = 2;    // UART2 TX interrupt has interrupt priority 3-4th highest priority
     
 	IEC1bits.U2TXIE = 1;	// Enable Transmit Interrupts
 	IFS1bits.U2RXIF = 0;	// Clear the Recieve Interrupt Flag
-	IPC7bits.U2RXIP = 4;    // UART2 Rx interrupt has 2nd highest priority
+	IPC7bits.U2RXIP = 3;    // UART2 Rx interrupt has 2nd highest priority
     IEC1bits.U2RXIE = 1;	// Enable Recieve Interrupts
 
 	U2MODEbits.UARTEN = 1;	// Turn the peripheral on
     AD1PCFGbits.PCFG2 = 1;  // Set AN2 to digital since this will be used for U2TX
     AD1PCFGbits.PCFG3 = 1;  // Set AN3 to digital since this will be used for U2RX
 
+}
+
+// Transmits single character(s) to UART
+void XmitUART2(char CharNum, unsigned int repeatNo)
+{	
+	
+	U2STAbits.UTXEN = 1;
+	while(repeatNo!=0) 
+	{
+		while(U2STAbits.UTXBF==1)	//Just loop here till the FIFO buffers have room for one more entry
+		{
+			// Idle();  //commented to try out serialplot app
+		}	
+		U2TXREG=CharNum;	//Move Data to be displayed in UART FIFO buffer
+		repeatNo--;
+	}
+	while(U2STAbits.TRMT==0)	//Turn off UART2 upon transmission of last character; also can be Verified in interrupt subroutine U2TXInterrupt()
+	{
+	}
+
+    U2STAbits.UTXEN = 0;
 }
 
 // Transmits String of characters to UART
