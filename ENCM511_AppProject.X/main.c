@@ -30,6 +30,10 @@ uint8_t PB1_pressed_g = 0;
 uint8_t PB2_pressed_g = 0;
 uint8_t PB3_pressed_g = 0;
 uint8_t disp_timer_g  = 1; // Timer 2
+char    p1_g          = 'K';
+char    p2_g          = 'M';
+char    p3_g          = 'S';
+uint8_t p_num_g       = 2;
 enum    States { LOCK,
                  AUTH1,
                  AUTH2, 
@@ -123,20 +127,116 @@ int main(void)
     timerInit();
     InitUART2();
     
-    // Forever loop
-    while(1)
-    {
-        
-        // Send current value of ADC output to UART
-        uart_send(mode_g, digitalRatio_g);
-        
-        // Wait till next ADC sample before sending next UART message
-        ADCFlag = 0;
-        
-        
-        while(!(ADCFlag))
-        {
-            Idle();
+    // 0
+    if (state_g == LOCK) {
+        // set initial cond
+        while (!()) idle();
+        if (true) {
+
+        }
+    }
+    // 1
+    if (state_g == AUTH1) {
+        // set initial cond
+        while (!false) idle();
+        if (true) {
+            
+        }
+    }
+    // 2
+    if (state_g == AUTH2) {
+        // set initial cond
+        while (!false) idle();
+        if (true) {
+            
+        }
+    }
+    // 3
+    if (state_g == AUTH3) {
+        // set initial cond
+        while (!false) idle();
+        if (true) {
+            
+        }
+    }
+    // 4
+    if (state_g == ERR_PASS) {
+        // set initial cond
+        while (!false) idle();
+        if (true) {
+            
+        }
+    }
+    // 5
+    if (state_g == UNLOCK) {
+        // set initial cond
+        while (!false) idle();
+        if (true) {
+            
+        }
+    }
+    // 6
+    if (state_g == DISP_LOCK) {
+        // set initial cond
+        while (!false) idle();
+        if (true) {
+            
+        }
+    }
+    // 7
+    if (state_g == CHNG_CHAR) {
+        // set initial cond
+        while (!false) idle();
+        if (true) {
+            
+        }
+    }
+    // 8
+    if (state_g == CHNG_NUM) {
+        // set initial cond
+        while (!false) idle();
+        if (true) {
+            
+        }
+    }
+    // 9
+    if (state_g == DISP_CHNG) {
+        // set initial cond
+        while (!false) idle();
+        if (true) {
+            
+        }
+    }
+    // 10
+    if (state_g == MENU) {
+        // set initial cond
+        while (!false) idle();
+        if (true) {
+            
+        }
+    }
+    // 11
+    if (state_g == CHNG_CLK) {
+        // set initial cond
+        while (!false) idle();
+        if (true) {
+            
+        }
+    }
+    // 12
+    if (state_g == GAME) {
+        // set initial cond
+        while (!false) idle();
+        if (true) {
+            
+        }
+    }
+    // 13
+    if (state_g == DISP_IDLE) {
+        // set initial cond
+        while (!false) idle();
+        if (true) {
+            
         }
     }
     
