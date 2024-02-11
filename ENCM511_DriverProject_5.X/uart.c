@@ -100,7 +100,6 @@ void uart_send(char mode, uint16_t ADC_out)
     disp_bar[30] = '|';
     
     disp_bar[31] = '\0';
-    
 
     // Print to terminal window
     
